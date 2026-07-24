@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude for Legal — Training Highlights & Use Cases (CityU)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff;
+  --bg2:#f8f9fa;
+  --surface:#ffffff;
+  --border:#e8eaed;
+  --text:#202124;
+  --muted:#5f6368;
+  --c1:#4285f4;
+  --c2:#ea4335;
+  --c3:#34a853;
+  --c4:#1a73e8;
+  --c5:#f9ab00;
+  --c6:#e37400;
+  --gblue:#4285f4;
+  --gred:#ea4335;
+  --ggreen:#34a853;
+  --gyellow:#fbbc04;
+  --shadow:0 1px 3px rgba(60,64,67,.2),0 4px 8px rgba(60,64,67,.12);
+  --shadow-sm:0 1px 2px rgba(60,64,67,.15),0 2px 4px rgba(60,64,67,.1);
+  --fd:'Poppins','Google Sans',Roboto,sans-serif;
+  --fb:Roboto,'Google Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#e8eaed;color:var(--text);font-family:var(--fb);}
+#deck{position:relative;width:100vw;height:100vh;overflow:hidden;}
+
+/* SLIDES — white cards on gray canvas */
+.slide{position:absolute;inset:0;padding:6vh 7vw;display:flex;flex-direction:column;justify-content:center;opacity:0;transform:translateX(70px);transition:opacity .28s cubic-bezier(.4,0,.2,1),transform .28s cubic-bezier(.4,0,.2,1);pointer-events:none;overflow:hidden;background:var(--bg);}
+.slide.active{opacity:1;transform:translateX(0);pointer-events:all;}
+.slide.exit{opacity:0;transform:translateX(-70px);}
+
+/* Google top color bar per section */
+.slide[data-s="1"]::before,.slide[data-s="2"]::before,.slide[data-s="3"]::before,.slide[data-s="4"]::before,.slide[data-s="5"]::before,.slide[data-s="6"]::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.slide[data-s="1"]::before{background:var(--c1);}
+.slide[data-s="2"]::before{background:var(--c2);}
+.slide[data-s="3"]::before{background:var(--c3);}
+.slide[data-s="4"]::before{background:var(--c4);}
+.slide[data-s="5"]::before{background:var(--c5);}
+.slide[data-s="6"]::before{background:var(--c6);}
+.div-slide::before{display:none!important;}
+
+/* TYPOGRAPHY */
+h1{font-family:var(--fd);font-size:clamp(48px,5.5vw,88px);font-weight:700;line-height:1.1;letter-spacing:-.02em;color:var(--text);}
+h2{font-family:var(--fd);font-size:clamp(34px,3.5vw,60px);font-weight:600;line-height:1.2;color:var(--text);}
+h3{font-family:var(--fd);font-size:clamp(22px,2.2vw,36px);font-weight:600;color:var(--text);}
+.subtitle{font-size:clamp(16px,1.5vw,22px);color:var(--muted);margin-top:.6rem;font-weight:400;line-height:1.55;}
+.label{font-size:clamp(12px,1.1vw,14px);letter-spacing:.14em;text-transform:uppercase;color:var(--accent,var(--c1));margin-bottom:1rem;font-weight:500;}
+.accent{color:var(--accent,var(--c1));}
+.italic{font-style:italic;}
+
+/* CARDS — Material Design */
+.card-grid{display:grid;gap:1.2vw;margin-top:2vh;}
+.grid2{grid-template-columns:1fr 1fr;}
+.grid3{grid-template-columns:repeat(3,1fr);}
+.grid4{grid-template-columns:repeat(4,1fr);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.2vw 1.4vw;box-shadow:var(--shadow-sm);}
+.card .icon{font-size:1.5rem;margin-bottom:.6rem;display:block;}
+.card h4{font-family:var(--fd);font-size:clamp(18px,1.6vw,24px);font-weight:600;margin-bottom:.4rem;color:var(--text);}
+.card p{font-size:clamp(13px,1.15vw,18px);color:var(--muted);line-height:1.5;}
+
+/* SECTION DIVIDERS */
+.div-slide{justify-content:flex-end;align-items:flex-start;padding-bottom:8vh;color:#fff;}
+.div-slide .div-tag{font-family:var(--fd);font-size:clamp(28px,4vw,58px);font-weight:700;line-height:1.15;max-width:70%;color:#fff;}
+.div-slide .div-sub{font-size:clamp(16px,1.6vw,22px);color:rgba(255,255,255,.78);margin-top:1rem;font-weight:400;max-width:60%;}
+.div-slide h2,.div-slide h3{color:#fff;}
+
+/* TABLES */
+.dt{width:100%;border-collapse:collapse;font-size:clamp(13px,1.2vw,18px);margin-top:2vh;}
+.dt th{text-align:left;padding:9px 13px;border-bottom:2px solid var(--border);color:var(--muted);font-weight:500;font-size:.82em;letter-spacing:.06em;text-transform:uppercase;background:var(--bg2);}
+.dt td{padding:9px 13px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;}
+.dt tr:last-child td{border-bottom:none;}
+.dt tr:hover td{background:rgba(66,133,244,.04);}
+.dt code{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:.86em;color:var(--c4);white-space:nowrap;}
+
+/* BULLETS */
+.blist{list-style:none;margin-top:1.5vh;display:flex;flex-direction:column;gap:.9vh;}
+.blist li{font-size:clamp(17px,1.6vw,25px);padding-left:1.4rem;position:relative;line-height:1.5;color:var(--text);}
+.blist li::before{content:'—';position:absolute;left:0;color:var(--accent,var(--c1));font-weight:600;}
+.blist li b{font-weight:600;}
+
+/* FOOTNOTE */
+.fn{font-size:clamp(11px,1vw,14px);color:var(--muted);margin-top:auto;padding-top:1.5vh;border-top:1px solid var(--border);line-height:1.4;}
+
+/* ACCENT PER SECTION */
+.slide[data-s="1"]{--accent:var(--c1);}
+.slide[data-s="2"]{--accent:var(--c2);}
+.slide[data-s="3"]{--accent:var(--c3);}
+.slide[data-s="4"]{--accent:var(--c4);}
+.slide[data-s="5"]{--accent:var(--c5);}
+.slide[data-s="6"]{--accent:var(--c6);}
+
+/* SEEKBAR */
+#seekbar-wrap{position:fixed;bottom:0;left:0;right:0;height:28px;z-index:99;display:flex;align-items:center;padding:0 12px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-top:1px solid #e8eaed;gap:10px;}
+#seekbar{-webkit-appearance:none;appearance:none;flex:1;height:4px;border-radius:2px;outline:none;cursor:pointer;background:linear-gradient(to right,var(--seek-fill,#4285f4) 0%,var(--seek-fill,#4285f4) var(--seek-pct,0%),#e8eaed var(--seek-pct,0%),#e8eaed 100%);transition:background .1s;}
+#seekbar::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#4285f4;cursor:pointer;box-shadow:0 1px 3px rgba(60,64,67,.3);transition:transform .15s;}
+#seekbar::-webkit-slider-thumb:hover{transform:scale(1.3);}
+#seekbar::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#4285f4;cursor:pointer;border:none;box-shadow:0 1px 3px rgba(60,64,67,.3);}
+/* NAV */
+#nav{position:fixed;bottom:28px;right:16px;display:flex;align-items:center;gap:6px;z-index:100;}
+#ctr-input{width:42px;text-align:center;border:1px solid #e8eaed;border-radius:4px;padding:2px 4px;font-size:14px;font-family:Roboto,sans-serif;color:#202124;background:#fff;outline:none;}
+#ctr-input::-webkit-inner-spin-button,#ctr-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+#ctr-input[type=number]{-moz-appearance:textfield;appearance:textfield;}
+#ctr-input:focus{border-color:#4285f4;box-shadow:0 0 0 2px rgba(66,133,244,.2);}
+.nb{background:#fff;border:1px solid var(--border);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);font-size:16px;transition:background .15s,box-shadow .15s;box-shadow:var(--shadow-sm);}
+.nb:hover{background:var(--bg2);box-shadow:var(--shadow);}
+
+/* NOTES */
+#notesOv{position:fixed;inset:0;background:rgba(255,255,255,.97);z-index:200;display:none;flex-direction:column;padding:40px;overflow-y:auto;}
+#notesOv.vis{display:flex;}
+#notesHead{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;font-family:var(--fb);}
+#notesTxt{font-size:22px;line-height:1.75;max-width:780px;color:var(--text);font-family:var(--fb);}
+#closeNotes{background:#fff;border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:20px;cursor:pointer;font-size:12px;box-shadow:var(--shadow-sm);}
+#closeNotes:hover{background:var(--bg2);}
+
+/* feat-card */
+.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.4vw 1.6vw;box-shadow:var(--shadow-sm);}
+.feat-card .icon{font-size:1.6rem;margin-bottom:.5rem;display:block;}
+.feat-card h3{font-family:var(--fd);font-size:clamp(18px,1.7vw,26px);font-weight:600;margin-bottom:.45rem;color:var(--text);}
+.feat-card p{font-size:clamp(14px,1.25vw,19px);color:var(--muted);line-height:1.55;}
+.feat-card .uc{display:block;margin-top:.7rem;font-size:clamp(12px,1.05vw,15px);color:var(--text);background:var(--bg2);border-left:3px solid var(--accent,var(--c1));border-radius:0 6px 6px 0;padding:7px 11px;line-height:1.45;}
+.feat-card .uc b{color:var(--accent,var(--c1));}
+
+/* hero text */
+.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;height:100%;}
+.hero h2{font-size:clamp(32px,4.5vw,64px);}
+
+/* check list */
+.chklist{list-style:none;margin-top:2vh;display:flex;flex-direction:column;gap:1.1vh;}
+.chklist li{font-size:clamp(18px,1.6vw,27px);padding-left:2rem;position:relative;line-height:1.5;color:var(--text);}
+.chklist li::before{content:'✓';position:absolute;left:0;color:var(--c3);font-weight:700;}
+
+/* warn list (✗ / cautions) */
+.warnlist{list-style:none;margin-top:2vh;display:flex;flex-direction:column;gap:1.1vh;}
+.warnlist li{font-size:clamp(18px,1.6vw,27px);padding-left:2rem;position:relative;line-height:1.5;color:var(--text);}
+.warnlist li::before{content:'⚠';position:absolute;left:0;color:var(--c5);font-weight:700;}
+
+/* timeline row */
+.tl-row{display:flex;gap:0;margin-top:2.5vh;position:relative;}
+.tl-row::before{content:'';position:absolute;top:30px;left:0;right:0;height:2px;background:var(--border);}
+.tl-item{flex:1;text-align:center;position:relative;padding-top:56px;padding-inline:6px;}
+.tl-dot{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:16px;height:16px;border-radius:50%;border:3px solid var(--accent,var(--c1));background:#fff;z-index:1;}
+.tl-year{font-size:clamp(13px,1.2vw,17px);font-weight:700;color:var(--accent,var(--c1));margin-bottom:.4rem;font-family:var(--fb);}
+.tl-name{font-family:var(--fd);font-size:clamp(16px,1.6vw,23px);font-weight:600;margin-bottom:.4rem;color:var(--text);}
+.tl-desc{font-size:clamp(12px,1.1vw,16px);color:var(--muted);line-height:1.4;}
+
+/* callout banner */
+.callout{margin-top:2.4vh;padding:16px 24px;background:linear-gradient(135deg,rgba(234,67,53,.09),rgba(249,171,0,.07));border:1px solid rgba(234,67,53,.25);border-radius:10px;}
+.callout .big{font-family:var(--fd);font-size:clamp(16px,1.8vw,26px);font-style:italic;color:var(--text);line-height:1.4;}
+
+/* DIVIDER BACKGROUNDS */
+.kb1{background:linear-gradient(135deg,#4285f4 0%,#1a73e8 100%);}
+.kb2{background:linear-gradient(135deg,#ea4335 0%,#c5221f 100%);}
+.kb3{background:linear-gradient(135deg,#34a853 0%,#1e8e3e 100%);}
+.kb4{background:linear-gradient(135deg,#7c3aed 0%,#4c1d95 100%);}
+.kb5{background:linear-gradient(135deg,#fbbc04 0%,#f29900 100%);}
+.kb6{background:linear-gradient(135deg,#e37400 0%,#c35a00 100%);}
+.dbar{display:block;width:48px;height:4px;border-radius:2px;background:rgba(255,255,255,.6);margin-bottom:1.5rem;}
+
+/* g-chip */
+.g-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;color:var(--muted);}
+
+/* LEVEL SELECTOR */
+#lvl-sel{display:flex;background:#fff;border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-sm);font-family:var(--fb);}
+#lvl-sel button{background:transparent;border:none;padding:6px 12px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:background .15s,color .15s;font-family:inherit;letter-spacing:.05em;}
+#lvl-sel button:hover{background:var(--bg2);}
+#lvl-sel button.active{background:var(--c1);color:#fff;}
+/* SECTION CHIP */
+#sec-chip{position:fixed;top:12px;right:12px;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border:1px solid var(--border);border-left:3px solid var(--c1);border-radius:4px;padding:4px 10px;font-size:11px;font-weight:500;color:var(--muted);font-family:var(--fb);cursor:pointer;box-shadow:var(--shadow-sm);transition:background .15s;}
+#sec-chip:hover{background:#fff;}
+/* TOC PANEL */
+#tocOv{position:fixed;left:0;top:0;width:13.5vw;min-width:170px;max-width:230px;height:100vh;background:rgba(14,16,22,.74);border-right:1px solid rgba(255,255,255,.1);z-index:200;display:none;flex-direction:column;padding:10px 8px;overflow-y:auto;backdrop-filter:blur(14px);}
+#tocOv.vis{display:flex;}
+#tocHead{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;justify-content:space-between;align-items:center;font-family:var(--fb);}
+#tocList{font-family:var(--fb);}
+.toc-section{font-family:var(--fb);font-size:9px;font-weight:700;color:rgba(255,255,255,.35);margin-top:12px;margin-bottom:3px;padding-bottom:3px;border-bottom:1px solid rgba(255,255,255,.08);letter-spacing:.1em;text-transform:uppercase;}
+.toc-section:first-child{margin-top:0;}
+.toc-row{display:flex;width:100%;text-align:left;background:transparent;border:none;padding:4px 5px;font-size:11px;color:rgba(255,255,255,.72);font-family:inherit;cursor:pointer;border-radius:3px;line-height:1.35;align-items:center;justify-content:space-between;gap:5px;}
+.toc-row:hover{background:rgba(255,255,255,.09);color:#fff;}
+.toc-row-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.toc-badge{display:inline-flex;gap:1px;padding:1px 4px;border-radius:6px;background:rgba(255,255,255,.07);font-size:9px;font-family:var(--fb);font-weight:700;letter-spacing:.05em;flex-shrink:0;}
+.toc-badge .lA{color:#34a853;}
+.toc-badge .lB{color:#4285f4;}
+.toc-badge .lC{color:#ea4335;}
+.toc-row.muted{opacity:.28;cursor:not-allowed;}
+.toc-row.muted:hover{background:transparent;color:rgba(255,255,255,.72);}
+.toc-row.active{background:rgba(255,255,255,.15);border-left:3px solid var(--c1,#4285f4);padding-left:5px;}
+#closeToc{background:transparent;border:none;color:rgba(255,255,255,.4);padding:0;cursor:pointer;font-size:14px;line-height:1;font-family:var(--fb);}
+#closeToc:hover{color:#fff;}
+</style>
+</head>
+<body>
+<div id="deck">
+
+<!-- TABLE OF CONTENTS OVERLAY -->
+<div id="tocOv">
+  <div id="tocHead">
+    <span>TOC · LV <span id="tocLevel">B</span></span>
+    <button id="closeToc" onclick="toggleTOC()" title="Close [T]">✕</button>
+  </div>
+  <div id="tocList"></div>
+</div>
+
+<!-- SPEAKER NOTES OVERLAY -->
+<div id="notesOv">
+  <div id="notesHead">
+    <span>SPEAKER NOTES — SLIDE <span id="notesSN">1</span></span>
+    <button id="closeNotes" onclick="toggleNotes()">CLOSE [S]</button>
+  </div>
+  <div id="notesTxt"></div>
+</div>
+
+<!-- ============================= SLIDES ============================= -->
+
+<!-- SLIDE 1: Title -->
+<div class="slide active" data-s="1" data-title="Title" data-notes="Welcome. This deck is your trainer's map for teaching 'Claude for Legal' to the CityU School of Law — academics and practitioners. The whole arc: what it is, how it works, the 13 practice plugins, the teaching tools, and — most important for this audience — how to adapt it for Hong Kong and Mainland China. Press T for the table of contents, S for speaker notes, arrow keys to move. The A/B/C buttons bottom-right switch audience depth.">
+  <div style="display:grid;grid-template-columns:1.05fr 1fr;gap:3.5vw;align-items:center;height:88%;">
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:2vh;">
+      <span class="g-chip" style="width:fit-content;">⚖️ Anthropic · Claude for Legal</span>
+      <h1 style="margin:0;line-height:1.12;font-size:clamp(30px,4vw,62px);">Claude for <span class="accent">Legal</span></h1>
+      <p style="font-family:var(--fd);font-size:clamp(20px,2.4vw,38px);font-weight:600;color:var(--muted);margin:0;line-height:1.2;">Highlights &amp; use cases<br>for legal professionals</p>
+      <p style="font-size:clamp(13px,1.3vw,18px);color:var(--muted);margin:0;max-width:42ch;">A trainer's walkthrough of the full plugin suite — built around how it actually works, and how to make it serve <b>Hong Kong &amp; China</b> law.</p>
+      <p class="subtitle" style="margin-top:.5rem;">CityU School of Law · AI Training · 2026</p>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;">
+      <svg width="100%" viewBox="0 0 420 360" style="max-height:74vh;">
+        <defs>
+          <linearGradient id="scaleG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4285f4"/><stop offset="100%" stop-color="#1a73e8"/></linearGradient>
+        </defs>
+        <!-- scales of justice, stylised -->
+        <line x1="210" y1="40" x2="210" y2="300" stroke="url(#scaleG)" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="210" cy="36" r="11" fill="#ea4335"/>
+        <line x1="90" y1="92" x2="330" y2="92" stroke="url(#scaleG)" stroke-width="6" stroke-linecap="round"/>
+        <line x1="160" y1="300" x2="260" y2="300" stroke="url(#scaleG)" stroke-width="8" stroke-linecap="round"/>
+        <!-- left pan -->
+        <line x1="90" y1="92" x2="60" y2="160" stroke="#9aa0a6" stroke-width="2"/>
+        <line x1="90" y1="92" x2="120" y2="160" stroke="#9aa0a6" stroke-width="2"/>
+        <path d="M55 160 A35 35 0 0 0 125 160 Z" fill="rgba(52,168,83,.18)" stroke="#34a853" stroke-width="2"/>
+        <!-- right pan -->
+        <line x1="330" y1="92" x2="300" y2="160" stroke="#9aa0a6" stroke-width="2"/>
+        <line x1="330" y1="92" x2="360" y2="160" stroke="#9aa0a6" stroke-width="2"/>
+        <path d="M295 160 A35 35 0 0 0 365 160 Z" fill="rgba(249,171,0,.2)" stroke="#f9ab00" stroke-width="2"/>
+        <!-- spark / AI dot -->
+        <circle cx="90" cy="160" r="6" fill="#34a853"/>
+        <circle cx="330" cy="160" r="6" fill="#f9ab00"/>
+        <text x="210" y="345" fill="#5f6368" font-family="Roboto,sans-serif" font-size="13" text-anchor="middle" font-style="italic">Faster review — never a replacement for the lawyer</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 2: Section 1 Divider -->
+<div class="slide div-slide kb1" data-s="1" data-title="Section 1 — Why This Matters" data-notes="Section 1 sets the frame. Before any tool demo, two things have to land: what this suite actually is, and the single guardrail that governs everything — every output is a draft for a lawyer to review. Get this right and the audience trusts the rest.">
+  <span class="dbar"></span>
+  <div class="div-tag">Section 1<br><span class="accent" style="color:#fff;">Why This Matters</span></div>
+  <p class="div-sub">What "Claude for Legal" is — and the one rule that governs all of it</p>
+</div>
+
+<!-- SLIDE 3: What is it -->
+<div class="slide" data-s="1" data-tags="intro" data-title="What is Claude for Legal?" data-notes="Plain-language framing for a non-technical legal audience. It is NOT a legal database or a robot lawyer. It is a set of pre-built assistants ('plugins') that each know a common legal workflow — reviewing an NDA, running diligence, drafting a board consent — and do the first-draft grunt work so the lawyer spends time on judgement, not assembly.">
+  <div class="label">Introduction</div>
+  <h2>What is <span class="accent">Claude for Legal</span>?</h2>
+  <p class="subtitle" style="max-width:60ch;">A free, open collection of ready-made AI assistants for the legal workflows lawyers do every day — installed into Claude.</p>
+  <div class="card-grid grid3" style="margin-top:3vh;">
+    <div class="card" style="border-top:3px solid var(--c1);">
+      <span class="icon">🧩</span>
+      <h4>Not one bot — many</h4>
+      <p>13 practice-area plugins (commercial, corporate, privacy, litigation, IP, employment…) plus law-school tools. Install only what you need.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--c3);">
+      <span class="icon">📋</span>
+      <h4>Workflow-shaped</h4>
+      <p>Each knows a real task end-to-end — "review this vendor contract", "draft this DSAR response" — with cited sources and house formatting.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--c5);">
+      <span class="icon">🔒</span>
+      <h4>Built by Anthropic</h4>
+      <p>Reference tooling, free and open. Every output is a <b>draft for attorney review</b> — designed to make review faster, not to replace the lawyer.</p>
+    </div>
+  </div>
+  <p class="fn">Source: Anthropic <code>claude-for-legal</code> marketplace (commercial · privacy · product · corporate · employment · litigation · regulatory · AI-governance · IP · law-student · legal-clinic · builder-hub · CoCounsel).</p>
+</div>
+
+<!-- SLIDE 4: The one rule -->
+<div class="slide" data-s="1" data-tags="intro" data-title="The One Rule — Draft for Review" data-notes="This is the most important slide for a room of lawyers and scholars. Read the suite's own disclaimer almost verbatim. Emphasise the FOUR built-in guardrails — they are real, baked into the skills, and they are exactly what makes this defensible to a bar regulator. The tool does not state Anthropic's view of the law; the reviewing attorney owns every legal position.">
+  <div class="label">The Non-Negotiable</div>
+  <h2>Every output is a <span class="accent">draft for attorney review</span></h2>
+  <p class="subtitle" style="max-width:64ch;">Not legal advice. Not a legal conclusion. Not a substitute for a lawyer. The guardrails are built in:</p>
+  <div class="card-grid grid4" style="margin-top:2.5vh;">
+    <div class="card"><span class="icon">🔗</span><h4>Cited</h4><p>Source attribution on every citation — claims trace back to a document.</p></div>
+    <div class="card"><span class="icon">🛡️</span><h4>Conservative</h4><p>Cautious defaults on privilege and subjective legal calls.</p></div>
+    <div class="card"><span class="icon">🌐</span><h4>Transparent</h4><p>Jurisdiction assumptions are surfaced, not hidden.</p></div>
+    <div class="card"><span class="icon">🚧</span><h4>Gated</h4><p>Explicit stop-gates before anything is filed, sent, or relied on.</p></div>
+  </div>
+  <div class="callout">
+    <div class="big">"A lawyer reviews, verifies, and takes professional responsibility for anything that leaves the building. These plugins make that review faster; they do not replace it."</div>
+  </div>
+</div>
+
+<!-- SLIDE 5: What's in the box -->
+<div class="slide" data-s="1" data-title="What's in the Box — 13 Plugins" data-notes="The full inventory at a glance, grouped so the audience sees the shape. Don't read every cell — point out the four families (transactional, contentious, risk/compliance, learning) and note the Thomson Reuters CoCounsel add-on for Westlaw research. We go deep on each in Section 3.">
+  <div class="label">The Inventory</div>
+  <h2>What's in the <span class="accent">box</span></h2>
+  <div class="card-grid grid4" style="margin-top:2.5vh;">
+    <div class="card" style="border-top:3px solid var(--c1);"><h4>Transactional</h4><p><b>Commercial</b> · contracts &amp; NDAs<br><b>Corporate</b> · M&amp;A, board, entities<br><b>Product</b> · launch &amp; marketing risk</p></div>
+    <div class="card" style="border-top:3px solid var(--c2);"><h4>Contentious</h4><p><b>Litigation</b> · matters, briefs, depo prep<br><b>IP</b> · trademarks, patents, takedowns<br><b>Employment</b> · hiring, exits, investigations</p></div>
+    <div class="card" style="border-top:3px solid var(--c5);"><h4>Risk &amp; Compliance</h4><p><b>Privacy</b> · PIA, DPA, DSAR<br><b>AI Governance</b> · use-case &amp; vendor AI<br><b>Regulatory</b> · feed-watch &amp; policy diff</p></div>
+    <div class="card" style="border-top:3px solid var(--c3);"><h4>Learning &amp; Build</h4><p><b>Law Student</b> · Socratic study<br><b>Legal Clinic</b> · supervised practice<br><b>Builder Hub</b> · find/install skills</p></div>
+  </div>
+  <p class="fn" style="margin-top:2vh;">Plus <b>CoCounsel</b> (Thomson Reuters) — Westlaw Deep Research with linked citations. 13 plugins, one marketplace, install à la carte.</p>
+</div>
+
+<!-- SLIDE 6: Where it runs -->
+<div class="slide" data-s="1" data-tags="deep-dive" data-title="Where It Runs (3 surfaces)" data-notes="Advanced/optional slide (Level C). Same skills, three places to run them: Claude Code (terminal, for the technical), Claude Cowork (desktop app, most lawyers will use this), and the Managed Agents API (for a firm that wants to wire agents behind its own systems). The point: the legal know-how is portable across all three.">
+  <div class="label">Deployment</div>
+  <h2>One source, <span class="accent">three surfaces</span></h2>
+  <div class="card-grid grid3" style="margin-top:3vh;">
+    <div class="feat-card" style="border-top:3px solid var(--c4);">
+      <span class="icon">🖥️</span><h3>Claude Cowork</h3>
+      <p>The desktop app. Point-and-click — where most lawyers will actually run these.</p>
+    </div>
+    <div class="feat-card" style="border-top:3px solid var(--c1);">
+      <span class="icon">⌨️</span><h3>Claude Code</h3>
+      <p>The terminal / CLI. For power users and anyone wiring it into a repo or scripts.</p>
+    </div>
+    <div class="feat-card" style="border-top:3px solid var(--c3);">
+      <span class="icon">🔌</span><h3>Managed Agents API</h3>
+      <p>Deploy the same skills behind your own workflow engine — for firm-scale automation.</p>
+    </div>
+  </div>
+  <p class="fn">"Same system prompt, same skills — you choose where it runs."</p>
+</div>
+
+<!-- SLIDE 7: Section 2 Divider -->
+<div class="slide div-slide kb2" data-s="2" data-title="Section 2 — How It Works" data-notes="Section 2 is the engine room. The single most powerful idea in the whole suite is that it LEARNS your practice once, then every skill reuses it. If the audience grasps the practice-profile concept, everything else clicks.">
+  <span class="dbar"></span>
+  <div class="div-tag">Section 2<br><span style="color:#fff;">How It Works</span></div>
+  <p class="div-sub">The architecture that makes it adapt to you — and to Hong Kong</p>
+</div>
+
+<!-- SLIDE 8: Core idea -->
+<div class="slide" data-s="2" data-title="It Learns Your Way of Working" data-notes="The 'aha'. The first time you use any plugin, it runs a cold-start interview: what jurisdiction, what's your risk appetite, who approves what, what's your house style. That answer is saved once. This is also the hook into the HK/China story — the cold-start is exactly where you tell it 'Hong Kong' or 'PRC'.">
+  <div class="label">The Core Idea</div>
+  <h2>It learns <span class="accent">your</span> way of working — once</h2>
+  <div class="tl-row">
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-year">STEP 1</div><div class="tl-name">Cold-start interview</div><div class="tl-desc">It asks about your jurisdiction, risk posture, approvers and house style.</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-year">STEP 2</div><div class="tl-name">Builds a profile</div><div class="tl-desc">Your answers are saved to a "practice profile" file.</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-year">STEP 3</div><div class="tl-name">Every skill reads it</div><div class="tl-desc">All plugins now work the way you described — no re-explaining.</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-year">STEP 4</div><div class="tl-name"><code>/customize</code></div><div class="tl-desc">Change one thing — add a jurisdiction — without redoing setup.</div></div>
+  </div>
+  <p class="fn" style="margin-top:2.5vh;">Every plugin ships a <code>cold-start-interview</code> and a <code>customize</code> skill. <b>This is where you set "Hong Kong" or "PRC" — see Section 5.</b></p>
+</div>
+
+<!-- SLIDE 9: Practice profile -->
+<div class="slide" data-s="2" data-title="The Practice Profile — One Source of Truth" data-notes="Show the two-file model concretely so it isn't mysterious. company-profile.md is shared across ALL plugins (who you are, your jurisdictions). Each plugin also has its own CLAUDE.md for its specifics. Change the shared file once and it flows everywhere — this is the lever you pull to localise the whole suite to HK.">
+  <div class="label">One Source of Truth</div>
+  <h2>The <span class="accent">practice profile</span></h2>
+  <p class="subtitle" style="max-width:62ch;">Two plain-text files store everything the plugins know about your practice. Edit them, and every skill changes behaviour.</p>
+  <div class="card-grid grid2" style="margin-top:2.5vh;">
+    <div class="feat-card" style="border-top:3px solid var(--c2);">
+      <span class="icon">🏢</span><h3>company-profile.md</h3>
+      <p>Shared across all 13 plugins — who you are, your industry, your jurisdictions. <b>Change it once → flows everywhere.</b></p>
+      <span class="uc"><b>HK lever:</b> set jurisdiction here to make the whole suite Hong-Kong-aware.</span>
+    </div>
+    <div class="feat-card" style="border-top:3px solid var(--c4);">
+      <span class="icon">📑</span><h3>each plugin's CLAUDE.md</h3>
+      <p>Per-practice specifics — your contract playbook, escalation contacts, review rules, materiality thresholds.</p>
+      <span class="uc"><b>Example:</b> "escalate any indemnity cap above HK$5M to the GC."</span>
+    </div>
+  </div>
+  <p class="fn">Stored under <code>~/.claude/plugins/config/claude-for-legal/</code>. No coding — they're readable text files.</p>
+</div>
+
+<!-- SLIDE 10: 4 building blocks -->
+<div class="slide" data-s="2" data-title="The Four Building Blocks" data-notes="The vocabulary the audience needs for the rest of the deck. Skills = the tasks you trigger. Agents = named end-to-end workers (e.g. 'Vendor Agreement Reviewer'). Watchers = scheduled agents that run on their own and ping you. Connectors = MCP plumbing to your systems. Most workflows combine two or three.">
+  <div class="label">Vocabulary</div>
+  <h2>Four <span class="accent">building blocks</span></h2>
+  <div class="card-grid grid4" style="margin-top:2.5vh;">
+    <div class="card" style="border-top:3px solid var(--c1);"><span class="icon">⚡</span><h4>Skills</h4><p>The tasks you trigger by name — <code>/review</code>, <code>/dsar-response</code>. The verbs.</p></div>
+    <div class="card" style="border-top:3px solid var(--c3);"><span class="icon">🧑‍⚖️</span><h4>Named Agents</h4><p>Job-titled end-to-end workers: "Vendor Agreement Reviewer", "DSAR Responder".</p></div>
+    <div class="card" style="border-top:3px solid var(--c5);"><span class="icon">⏰</span><h4>Watchers</h4><p>Scheduled agents that run on their own — renewal, docket, reg-feed — and ping you.</p></div>
+    <div class="card" style="border-top:3px solid var(--c4);"><span class="icon">🔌</span><h4>Connectors</h4><p>Links to your systems — Slack, Drive, Box, iManage, DocuSign, CourtListener.</p></div>
+  </div>
+  <p class="fn" style="margin-top:2vh;">A real workflow usually chains them: a <b>Watcher</b> spots a renewal → triggers a <b>Skill</b> → which reads a <b>Connector</b> → and a named <b>Agent</b> drafts the memo.</p>
+</div>
+
+<!-- SLIDE 11: Worked example -->
+<div class="slide" data-s="2" data-title="Worked Example — NDA Triage" data-notes="Make it concrete with one flow the whole room understands: an inbound NDA. Show the GREEN/YELLOW/RED triage idea — the machine handles the easy greens, only the genuinely hard ones reach a lawyer's desk. This is the value proposition in one picture: lawyers spend time only where judgement is needed.">
+  <div class="label">End-to-End</div>
+  <h2>Worked example: <span class="accent">inbound NDA</span></h2>
+  <div class="tl-row">
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-year">ARRIVES</div><div class="tl-name">NDA lands</div><div class="tl-desc">Counterparty sends an NDA to the shared inbox / connector.</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-year">TRIAGE</div><div class="tl-name">GREEN / YELLOW / RED</div><div class="tl-desc">Checked against your playbook; flagged by severity.</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-year">DRAFT</div><div class="tl-name">Redline + memo</div><div class="tl-desc">Deviations marked, with a plain-English summary.</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-year">GATE</div><div class="tl-name">Lawyer reviews</div><div class="tl-desc">Only the hard ones reach a desk. Human signs off.</div></div>
+  </div>
+  <div class="callout" style="background:linear-gradient(135deg,rgba(52,168,83,.1),rgba(66,133,244,.07));border-color:rgba(52,168,83,.25);">
+    <div class="big">The win: routine "greens" clear themselves. Lawyer time goes only where judgement is actually needed.</div>
+  </div>
+</div>
+
+<!-- SLIDE 12: Section 3 Divider -->
+<div class="slide div-slide kb3" data-s="3" data-title="Section 3 — The Practice Plugins" data-notes="Section 3 is the tour. We walk the 13 plugins in four families. For each, give the plain-English 'what it does' and one concrete use case. Don't drown them in skill names — the use case is what sells it. Tell the audience the full skill lists are in the appendix table.">
+  <span class="dbar"></span>
+  <div class="div-tag">Section 3<br><span style="color:#fff;">The Practice Plugins</span></div>
+  <p class="div-sub">A guided tour of all 13 — what each does, and a use case you can demo</p>
+</div>
+
+<!-- SLIDE 13: Transactional -->
+<div class="slide" data-s="3" data-title="Transactional — Commercial & Corporate" data-notes="Family 1. Commercial = the contract factory (review against playbook, NDA triage, renewals, escalation). Corporate = the deal room (tabular diligence with every cell cited, board consents, closing checklists, entity deadlines). The 'tabular review' — one row per document, every claim cited — is the standout demo; it's how you do diligence at scale without losing the audit trail.">
+  <div class="label">Family 1 · Transactional</div>
+  <h2>Commercial &amp; <span class="accent">Corporate</span></h2>
+  <div class="card-grid grid2" style="margin-top:2vh;">
+    <div class="feat-card" style="border-top:3px solid var(--c3);">
+      <span class="icon">📝</span><h3>Commercial</h3>
+      <p>Reviews vendor agreements, NDAs &amp; SaaS terms against your playbook; tracks renewals &amp; cancel-by dates; routes escalations.</p>
+      <span class="uc"><b>Use case:</b> "Review this MSA and give me a redline memo + a business-readable summary."</span>
+    </div>
+    <div class="feat-card" style="border-top:3px solid var(--c3);">
+      <span class="icon">🏛️</span><h3>Corporate / M&amp;A</h3>
+      <p>Tabular diligence (one row per doc, <b>every cell cited</b>), disclosure schedules, board consents &amp; minutes, entity-compliance deadlines.</p>
+      <span class="uc"><b>Use case:</b> "Build a diligence grid over this data room, flag issues above the materiality threshold."</span>
+    </div>
+  </div>
+  <p class="fn">Skills incl. <code>vendor-agreement-review</code> · <code>nda-review</code> · <code>renewal-tracker</code> · <code>tabular-review</code> · <code>diligence-issue-extraction</code> · <code>written-consent</code> · <code>entity-compliance</code>.</p>
+</div>
+
+<!-- SLIDE 14: Contentious -->
+<div class="slide" data-s="3" data-title="Contentious — Litigation, IP, Employment" data-notes="Family 2 — the disputes work, and the most common-law-portable family (good news for Hong Kong). Litigation: matter management plus the actual work product — claim charts, chronologies, depo prep, privilege logs, brief sections. IP: clearance, takedowns both directions, OSS compliance. Employment: hiring/termination risk, worker classification, internal investigations. Flag that the jurisdiction defaults here are US (FMLA, state tests) — Section 5 handles the remap.">
+  <div class="label">Family 2 · Contentious</div>
+  <h2>Litigation · IP · <span class="accent">Employment</span></h2>
+  <div class="card-grid grid3" style="margin-top:2vh;">
+    <div class="feat-card" style="border-top:3px solid var(--c2);">
+      <span class="icon">⚔️</span><h3>Litigation</h3>
+      <p>Matter &amp; deadline portfolio + work product: claim charts, chronologies, depo prep, privilege logs, brief drafting.</p>
+      <span class="uc"><b>Use case:</b> "Build a chronology from these exhibits and draft the statement-of-facts section."</span>
+    </div>
+    <div class="feat-card" style="border-top:3px solid var(--c2);">
+      <span class="icon">™️</span><h3>IP</h3>
+      <p>Trademark clearance &amp; FTO triage, invention-disclosure screening, cease-&amp;-desist + DMCA (send &amp; respond), OSS compliance.</p>
+      <span class="uc"><b>Use case:</b> "First-pass clearance on this mark; draft a C&amp;D if it's clearly infringing."</span>
+    </div>
+    <div class="feat-card" style="border-top:3px solid var(--c2);">
+      <span class="icon">👥</span><h3>Employment</h3>
+      <p>Hiring &amp; termination risk review, worker classification, internal investigations, policy drafting.</p>
+      <span class="uc"><b>Use case:</b> "Screen this termination for risk flags." <i>(Defaults are US — remap in §5.)</i></span>
+    </div>
+  </div>
+  <p class="fn">Litigation work product is largely <b>common-law-portable</b> → strong fit for Hong Kong with profile tuning.</p>
+</div>
+
+<!-- SLIDE 15: Risk & Compliance -->
+<div class="slide" data-s="3" data-title="Risk & Compliance — Privacy, AI Gov, Product, Reg" data-notes="Family 3 — the highest research relevance for a law faculty, and the area where jurisdiction matters most. Privacy ships GDPR logic (PIA/DPA/DSAR). AI Governance does use-case triage and vendor-AI review. Product answers 'is this a problem?' fast. Regulatory watches feeds and diffs new rules against your policy library. Tee up the comparative-law teaching angle: GDPR vs HK PDPO vs PRC PIPL is a live classroom exercise.">
+  <div class="label">Family 3 · Risk &amp; Compliance</div>
+  <h2>Privacy · AI Governance · Product · <span class="accent">Regulatory</span></h2>
+  <div class="card-grid grid4" style="margin-top:2vh;">
+    <div class="card" style="border-top:3px solid var(--c5);"><span class="icon">🔐</span><h4>Privacy</h4><p>PIA generation, DPA review (controller/processor), DSAR responses on statutory clocks. <i>(GDPR defaults.)</i></p></div>
+    <div class="card" style="border-top:3px solid var(--c5);"><span class="icon">🤖</span><h4>AI Governance</h4><p>AI use-case triage &amp; registry, impact assessments, vendor-AI term review (training-on-data, liability).</p></div>
+    <div class="card" style="border-top:3px solid var(--c5);"><span class="icon">🚀</span><h4>Product</h4><p>"Is this a problem?" rapid triage, feature-risk, marketing-claims substantiation.</p></div>
+    <div class="card" style="border-top:3px solid var(--c5);"><span class="icon">📡</span><h4>Regulatory</h4><p>Watches feeds, diffs new rules vs your policy library, tracks comment deadlines &amp; gaps.</p></div>
+  </div>
+  <div class="callout" style="background:linear-gradient(135deg,rgba(249,171,0,.1),rgba(66,133,244,.06));border-color:rgba(249,171,0,.3);">
+    <div class="big">Teaching gold: same feature, three regimes — <b>GDPR vs HK PDPO vs PRC PIPL</b>. A live comparative-law exercise.</div>
+  </div>
+</div>
+
+<!-- SLIDE 16: Deep research -->
+<div class="slide" data-s="3" data-title="Deep Research & Citations" data-notes="Citation discipline is the headline feature for academics — they will be skeptical about hallucination. CoCounsel (Thomson Reuters) produces Westlaw Deep Research reports with inline LINKED citations to Westlaw and Practical Law — a paid, authoritative source. The general deep-research skill does fan-out web search with adversarial verification. Stress: for HK/China you'd point research at HK/PRC databases — see §5.">
+  <div class="label">Trust the Citation</div>
+  <h2>Deep research, <span class="accent">linked citations</span></h2>
+  <div class="card-grid grid2" style="margin-top:2.5vh;">
+    <div class="feat-card" style="border-top:3px solid var(--c3);">
+      <span class="icon">📚</span><h3>CoCounsel (Thomson Reuters)</h3>
+      <p>Westlaw Deep Research reports with <b>inline, linked citations</b> to Westlaw &amp; Practical Law. Authoritative, paid source.</p>
+      <span class="uc"><b>Use case:</b> "Research the standard for X and give me a memo with linked authorities."</span>
+    </div>
+    <div class="feat-card" style="border-top:3px solid var(--c1);">
+      <span class="icon">🔎</span><h3>deep-research skill</h3>
+      <p>Fan-out web search → fetch sources → <b>adversarially verify</b> claims → cited synthesis. Built-in fact-checking pass.</p>
+      <span class="uc"><b>Use case:</b> "Research this open question and flag where sources disagree."</span>
+    </div>
+  </div>
+  <p class="fn">Why it matters for scholars: <b>source attribution on every claim</b> is the antidote to hallucination — and the basis for trusting the output.</p>
+</div>
+
+<!-- SLIDE 17: Use-case gallery -->
+<div class="slide" data-s="3" data-title="Use-Case Gallery — 'I want to…'" data-notes="A demo menu. This is the slide to leave up while you ask the room 'which of these do you do weekly?' and then live-demo their pick. Each row is a real command. Keep it as a quick scan, not a read-aloud.">
+  <div class="label">Demo Menu</div>
+  <h2>"I want to…" <span class="accent">→ command</span></h2>
+  <table class="dt">
+    <thead><tr><th>I want to…</th><th>Plugin</th><th>Command</th></tr></thead>
+    <tbody>
+      <tr><td>Triage an inbound NDA</td><td>Commercial</td><td><code>/commercial-legal:review</code></td></tr>
+      <tr><td>Run diligence over a data room</td><td>Corporate</td><td><code>/corporate-legal:tabular-review</code></td></tr>
+      <tr><td>Draft a DSAR response on the clock</td><td>Privacy</td><td><code>/privacy-legal:dsar-response</code></td></tr>
+      <tr><td>Screen an AI use-case for risk</td><td>AI Governance</td><td><code>/ai-governance-legal:use-case-triage</code></td></tr>
+      <tr><td>Build a litigation chronology</td><td>Litigation</td><td><code>/litigation-legal:chronology</code></td></tr>
+      <tr><td>First-pass trademark clearance</td><td>IP</td><td><code>/ip-legal:clearance</code></td></tr>
+      <tr><td>Get a regulatory digest each Monday</td><td>Regulatory</td><td>scheduled watcher</td></tr>
+    </tbody>
+  </table>
+  <p class="fn">Tip for trainers: leave this up, ask "which do you do weekly?", and live-demo their pick.</p>
+</div>
+
+<!-- SLIDE 17b: Connectors — concept + research -->
+<div class="slide" data-s="3" data-title="Connectors — Research & Case Law" data-notes="Explain CONNECTORS in plain terms first: a connector is a secure, permission-controlled bridge that lets Claude look inside a system your team already uses — the data stays where it is. Then the research category, which is the one this audience asked about (the Lexis interest). Don't assume they know the brand names — lead with the purpose. The headline message: there is no LexisNexis connector; CoCounsel (Westlaw / Thomson Reuters) is its closest peer; and the research coverage is US / common-law, not HK or PRC. (Advanced mode adds two add-on slides on Consensus — a SEPARATE, non-legal academic-research connector — right after the connector pair.)">
+  <div class="label">Connectors · 1 of 2</div>
+  <h2>Plugging Claude into <span class="accent">systems you use</span></h2>
+  <p class="subtitle" style="max-width:66ch;">A "connector" is a secure, permission-bound bridge: Claude can read from (and sometimes act inside) a system your team already uses — <b>the data stays where it is.</b></p>
+  <h3 style="margin-top:2vh;font-size:clamp(17px,1.7vw,24px);">Legal research &amp; case law <span style="font-weight:400;color:var(--muted);font-size:.8em;">— "look up the law"</span></h3>
+  <table class="dt" style="margin-top:1vh;">
+    <thead><tr><th>Connector</th><th>What it is, in plain terms</th><th>Coverage</th></tr></thead>
+    <tbody>
+      <tr><td><b>CoCounsel</b><br><span style="font-size:.82em;color:var(--muted);">Westlaw / Thomson Reuters</span></td><td>A <b>premium, paid AI legal-research service</b> — cases, statutes, regulations + practitioner commentary, with linked citations. The closest equivalent to <b>LexisNexis</b>.</td><td>🇺🇸 US (paid)</td></tr>
+      <tr><td><b>CourtListener</b></td><td>A <b>free public database</b> of court decisions, dockets and judge profiles; also checks citations.</td><td>🇺🇸 US (free)</td></tr>
+      <tr><td><b>Descrybe</b> · <b>Trellis</b></td><td>Case search by concept, authority extraction, and <b>court/judge analytics</b> (who ruled how).</td><td>🇺🇸 US</td></tr>
+    </tbody>
+  </table>
+  <div class="callout" style="margin-top:1.8vh;">
+    <div class="big" style="font-size:clamp(14px,1.5vw,21px);"><b>On the Lexis question:</b> there's no LexisNexis connector — <b>CoCounsel (Westlaw)</b> is its direct peer. All research connectors are <b>US / common-law</b>, not HK or PRC.</div>
+  </div>
+</div>
+
+<!-- SLIDE 17c: Connectors — work systems -->
+<div class="slide" data-s="3" data-title="Connectors — The Work Itself" data-notes="The second connector slide: the systems that hold and move the actual work product. Again, lead with the category and purpose, not the brand. These are jurisdiction-NEUTRAL — they operate on your own documents, so they work fine for a non-US / non-HK practice. Plus the two everyday ones (Slack, Google Drive/Box) everyone recognises. The takeaway: research tools are US-bound, but the document/contract/dispute tooling works anywhere.">
+  <div class="label">Connectors · 2 of 2</div>
+  <h2>Connectors for the <span class="accent">work itself</span></h2>
+  <p class="subtitle" style="max-width:64ch;">These hold and move your own documents — so they're <b>jurisdiction-neutral</b> and work for any practice, anywhere.</p>
+  <div class="card-grid grid3" style="margin-top:2vh;">
+    <div class="card" style="border-top:3px solid var(--c3);"><h4>📁 Document stores</h4><p>The firm's secure filing cabinet — Claude reads matter files <b>in place</b>, access stays logged. <span style="color:var(--muted);">e.g. iManage, Box</span></p></div>
+    <div class="card" style="border-top:3px solid var(--c3);"><h4>📝 Contract systems</h4><p>Where contracts live, get signed &amp; structured — search clauses, track signatures, check cross-refs. <span style="color:var(--muted);">e.g. Ironclad, DocuSign, Definely</span></p></div>
+    <div class="card" style="border-top:3px solid var(--c3);"><h4>⚖️ E-discovery</h4><p>Litigation review platforms — find the relevant few documents inside huge sets. <span style="color:var(--muted);">e.g. Everlaw, Aurora</span></p></div>
+    <div class="card" style="border-top:3px solid var(--c3);"><h4>™️ Patent research</h4><p>Prior-art &amp; patent-literature search and claim analysis. <span style="color:var(--muted);">e.g. Solve Intelligence</span></p></div>
+    <div class="card" style="border-top:3px solid var(--c3);"><h4>🤝 Counsel &amp; skills</h4><p>Find &amp; rate outside counsel; a library of community-built legal skills. <span style="color:var(--muted);">e.g. TopCounsel, Lawve AI</span></p></div>
+    <div class="card" style="border-top:3px solid var(--c1);"><h4>💬 Everyday tools</h4><p>The chat &amp; storage your team already lives in. <span style="color:var(--muted);">Slack, Google Drive, Box, Jira/Asana</span></p></div>
+  </div>
+  <p class="fn">Bottom line: research connectors are US-bound; document, contract &amp; dispute tooling is jurisdiction-neutral — fine for a CityU practice.</p>
+</div>
+
+<!-- SLIDE 17d: Beyond the suite — Consensus connector (add-on) -->
+<div class="slide" data-s="3" data-tags="deep-dive" data-title="Beyond the Suite — Consensus (add-on)" data-notes="Step OUTSIDE claude-for-legal here. Be explicit: Consensus is NOT one of the 13 plugins and not legal-specific — it's a separate, general academic-research connector you can switch on by itself or alongside the legal skills. Draw the contrast with the previous slide: CoCounsel/Westlaw answers 'what's the law' (primary law, case law); Consensus answers 'what does the peer-reviewed evidence say' (220M+ scholarly papers, every answer tied to a real citation). The hook for THIS room: academics' top fear is AI inventing citations — Consensus is built to do the opposite. Honest boundary: it surfaces academic literature, it is NOT a substitute for legal primary-law research (Westlaw/HKLII) and not a legal-advice tool.">
+  <div class="label">Beyond the suite · add-on connector</div>
+  <h2>A research connector <span class="accent">beyond claude-for-legal</span></h2>
+  <p class="subtitle" style="max-width:68ch;"><b>Consensus</b> is a <b>separate connector</b> — an AI search over <b>220M+ peer-reviewed papers</b> (Semantic Scholar, OpenAlex, PubMed, arXiv) where <b>every answer is tied to a real citation</b>. It is <b>not</b> one of the 13 legal plugins — switch it on <b>by itself or alongside</b> them.</p>
+  <table class="dt" style="margin-top:1.6vh;">
+    <thead><tr><th></th><th>claude-for-legal <span style="font-weight:400;color:var(--muted);font-size:.8em;">(the suite)</span></th><th>Consensus <span style="font-weight:400;color:var(--muted);font-size:.8em;">(add-on)</span></th></tr></thead>
+    <tbody>
+      <tr><td><b>What it is</b></td><td>13 legal skill-plugins + workflows</td><td>General academic-search connector, every answer cited</td></tr>
+      <tr><td><b>Scope</b></td><td>Legal-specific; draft-for-review</td><td>Cross-disciplinary; <b>not</b> legal-specific</td></tr>
+      <tr><td><b>In the marketplace?</b></td><td>Yes — the suite</td><td><b>No — a separate connector, usable on its own</b></td></tr>
+      <tr><td><b>Answers</b></td><td>"Do the legal work"</td><td>"What does the <b>peer-reviewed evidence</b> say?"</td></tr>
+    </tbody>
+  </table>
+  <div class="callout" style="margin-top:1.6vh;">
+    <div class="big" style="font-size:clamp(14px,1.5vw,21px);"><b>The hook for this room:</b> academics' top worry is AI <i>inventing</i> citations — Consensus is built to do the opposite. <b>But the boundary:</b> it surfaces <b>scholarly literature</b>, not primary law — it is no substitute for Westlaw / HKLII, and it is <b>not legal advice</b>.</div>
+  </div>
+</div>
+
+<!-- SLIDE 17e: Consensus in action — curated showcase -->
+<div class="slide" data-s="3" data-tags="deep-dive" data-title="Consensus in Action — What It Surfaced" data-notes="This is the connector IN ACTION, not the deck's own endorsed reading list. A curated sample (not all the topics) of what Consensus pulled for a legal-academic audience, each linked to its PRIMARY source (journal / DOI / SSRN / ABA), not a Consensus redirect. Lead with the bridge paper — the Stanford RegLab/Yale hallucination study — because it's the evidence for the deck's own 'draft for review' rule: leading legal-research AIs hallucinate 17–33%. Two honesty notes when you present: the comparative-privacy paper covers GDPR/CCPA but NOT Hong Kong PDPO or China PIPL — it's a template you extend, not a source that includes them; and the 'black box' paper actually argues opacity is mostly NOT a real problem (it deflates the panic), so frame it correctly. Tell the room these are illustrative — the value is that every claim comes back with a verifiable citation.">
+  <div class="label">Consensus · the connector in action</div>
+  <h2>What it surfaced for a <span class="accent">legal-academic audience</span></h2>
+  <p class="subtitle" style="max-width:66ch;">A <b>curated</b> sample — each linked to its <b>primary source</b>, not a redirect. The point isn't the list; it's that <b>every claim comes back cited and checkable.</b></p>
+  <div class="card-grid grid3" style="margin-top:2vh;">
+    <div class="card" style="border-top:3px solid var(--c3);">
+      <h4>🤖 AI &amp; legal practice</h4>
+      <p><a href="https://onlinelibrary.wiley.com/doi/full/10.1111/jels.12413" target="_blank" style="color:var(--c3);font-weight:600;">Hallucination-Free?</a> — Stanford RegLab/Yale: leading legal-research AIs <b>hallucinate 17–33%</b>. <span style="color:var(--muted);">The evidence for our "draft for review" rule.</span></p>
+      <p><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4821951" target="_blank" style="color:var(--c3);font-weight:600;">Balancing the Scale</a> — the case for <b>human-in-the-loop</b> in sensitive matters.</p>
+      <p><a href="https://www.researchgate.net/publication/388345767" target="_blank" style="color:var(--c3);font-weight:600;">LLMs in Law: a survey</a> — legal-NLP landscape, 2017–2023.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--c5);">
+      <h4>🔐 Privacy &amp; comparative law</h4>
+      <p><a href="https://journals-sol.sbc.org.br/index.php/jisa/article/view/5247" target="_blank" style="color:var(--c5);font-weight:600;">Optimizing Compliance</a> — a comparison <b>template</b> across GDPR / CCPA.</p>
+      <p style="color:var(--muted);font-size:.86em;">⚠️ Covers GDPR/CCPA — <b>not</b> HK PDPO or China PIPL. Use it as a framework to <b>extend</b>, a live classroom exercise.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--c2);">
+      <h4>⚖️ Transparency <span style="font-weight:400;color:var(--muted);font-size:.8em;">(for scholars)</span></h4>
+      <p><a href="https://link.springer.com/article/10.1007/s10506-023-09356-9" target="_blank" style="color:var(--c2);font-weight:600;">The black box problem revisited</a> — argues AI opacity is <b>mostly not</b> the real problem. <span style="color:var(--muted);">Deflates the panic — frame it that way.</span></p>
+      <p><a href="https://www.americanbar.org/groups/professional_responsibility/publications/professional_lawyer/27/1/" target="_blank" style="color:var(--c2);font-weight:600;">Future of Law Firms</a> — six areas AI is already changing.</p>
+    </div>
+  </div>
+  <p class="fn">Illustrative, not exhaustive — and not the deck's endorsement. Consensus is the <b>add-on doing the work</b>: scholarly evidence, every answer cited.</p>
+</div>
+
+<!-- SLIDE 18: Section 4 Divider -->
+<div class="slide div-slide kb4" data-s="4" data-title="Section 4 — Teaching & Clinics" data-notes="Section 4 is the part that lands hardest with a university audience — the learning side. These tools are explicitly designed NOT to do the student's thinking for them. That ethos is the selling point to faculty worried about academic integrity.">
+  <span class="dbar"></span>
+  <div class="div-tag">Section 4<br><span style="color:#fff;">Teaching &amp; Clinics</span></div>
+  <p class="div-sub">The CityU-relevant core: study tools, clinics, and building your own skills</p>
+</div>
+
+<!-- SLIDE 19: Law Student -->
+<div class="slide" data-s="4" data-title="Law Student — Socratic, Never the Answer" data-notes="The pedagogy is the headline: it drills Socratically, briefs cases, builds outlines, grades IRAC practice, runs bar prep tuned to the jurisdiction — but is designed to NEVER write the answer for the student. For a faculty worried about ChatGPT-enabled cheating, this is a tool that reinforces learning rather than short-circuiting it. Bar-prep is jurisdiction-tunable → set it to HK.">
+  <div class="label">For Students</div>
+  <h2>Law Student — <span class="accent">it won't write it for you</span></h2>
+  <div class="card-grid grid3" style="margin-top:2vh;">
+    <div class="card" style="border-top:3px solid var(--c4);"><span class="icon">🎙️</span><h4>Socratic drill</h4><p>Questions you toward the answer — case briefing, cold-call prep, outline building.</p></div>
+    <div class="card" style="border-top:3px solid var(--c4);"><span class="icon">✍️</span><h4>IRAC practice</h4><p>Grades your IRAC, flashcards, exam forecasting, legal-writing feedback.</p></div>
+    <div class="card" style="border-top:3px solid var(--c4);"><span class="icon">📅</span><h4>Bar prep + plan</h4><p>Sessions tuned to <b>your jurisdiction</b>, plus a study schedule.</p></div>
+  </div>
+  <div class="callout" style="background:linear-gradient(135deg,rgba(26,115,232,.09),rgba(52,168,83,.07));border-color:rgba(26,115,232,.25);">
+    <div class="big">Designed around academic integrity: it coaches the reasoning — it never hands over the work.</div>
+  </div>
+</div>
+
+<!-- SLIDE 20: Legal Clinic -->
+<div class="slide" data-s="4" data-title="Legal Clinic — Supervised Practice" data-notes="The clinic plugin runs a teaching law clinic: setup, student onboarding, structured client intake, malpractice-aware deadline tracking, a supervisor review queue, plain-language client letters, and semester handoff. Crucially it is built within ABA Formal Opinion 512 (the US ethics opinion on generative AI) — which is itself a teachable artifact, and a remap target for HK's professional-conduct rules (see §5).">
+  <div class="label">For Clinics</div>
+  <h2>Legal Clinic — <span class="accent">end-to-end, supervised</span></h2>
+  <div class="card-grid grid2" style="margin-top:2vh;">
+    <div class="feat-card" style="border-top:3px solid var(--c4);">
+      <span class="icon">🗂️</span><h3>Runs the clinic</h3>
+      <p>Setup, student onboarding, structured intake, <b>malpractice-aware</b> deadline tracking, supervisor review queue, semester handoff.</p>
+      <span class="uc"><b>Use case:</b> "Intake this new client and draft a plain-language explainer letter."</span>
+    </div>
+    <div class="feat-card" style="border-top:3px solid var(--c4);">
+      <span class="icon">⚖️</span><h3>Ethics-aware by design</h3>
+      <p>Built within <b>ABA Formal Op. 512</b> on generative AI — supervision &amp; competence baked into the workflow.</p>
+      <span class="uc"><b>Teaching hook:</b> remap Op. 512 → HK Solicitors' / Bar conduct rules (§5).</span>
+    </div>
+  </div>
+  <p class="fn">A ready-made, AI-assisted teaching clinic — with the guardrails a supervising solicitor needs.</p>
+</div>
+
+<!-- SLIDE 21: Builder Hub -->
+<div class="slide" data-s="4" data-title="Legal Builder Hub — Build Your Own" data-notes="The empowerment slide. The Builder Hub lets faculty find, evaluate and install community legal skills — behind a SECURITY-REVIEW GATE so nothing risky lands silently. More importantly, it's the on-ramp for CityU to build its OWN skills: a 'HK Stamp Duty checker', a 'Cap 622 compliance helper', a 'PDPO DPP mapper'. This is how the suite becomes genuinely local.">
+  <div class="label">Build &amp; Share</div>
+  <h2>Legal Builder Hub — <span class="accent">make it your own</span></h2>
+  <div class="card-grid grid3" style="margin-top:2.5vh;">
+    <div class="card" style="border-top:3px solid var(--c4);"><span class="icon">🔍</span><h4>Discover</h4><p>Browse a registry of community legal skills built by others.</p></div>
+    <div class="card" style="border-top:3px solid var(--c2);"><span class="icon">🛡️</span><h4>Security gate</h4><p>A review check runs <b>before anything installs</b> — no silent surprises.</p></div>
+    <div class="card" style="border-top:3px solid var(--c3);"><span class="icon">🏗️</span><h4>Build local</h4><p>Author your own HK/PRC skills — and share them with the faculty.</p></div>
+  </div>
+  <div class="callout" style="background:linear-gradient(135deg,rgba(52,168,83,.1),rgba(26,115,232,.06));border-color:rgba(52,168,83,.25);">
+    <div class="big">The CityU opportunity: a "HK Stamp Duty checker", a "Cap 622 helper", a "PDPO DPP mapper" — built once, shared department-wide.</div>
+  </div>
+</div>
+
+<!-- SLIDE 22: Section 5 Divider -->
+<div class="slide div-slide kb5" data-s="5" data-title="Section 5 — Hong Kong & China" data-notes="Section 5 is your differentiator and the reason this audience is in the room. Be honest and precise: the suite ships with US/EU law baked in. Its value for HK/China is the WORKFLOW SCAFFOLDING plus the customisation layer — not a localised legal database. Frame it that way and a skeptical scholarly audience will trust you.">
+  <span class="dbar"></span>
+  <div class="div-tag">Section 5<br><span style="color:#fff;">Hong Kong &amp; China</span></div>
+  <p class="div-sub">Adapting a US-built suite for HK common law and PRC civil law</p>
+</div>
+
+<!-- SLIDE 23: Honest framing -->
+<div class="slide" data-s="5" data-title="The Honest Framing" data-notes="Say this plainly. Out of the box, these plugins 'know' US and EU law — FMLA, US state worker tests, GDPR DPIAs, ABA Op. 512, and the research connectors point at Westlaw/CourtListener (US). For HK/China the value is the scaffolding + the customisation layer, NOT a ready-made local knowledge base. You supply the local law via the practice profile and the sources you feed it. Managing this expectation up front is what keeps your credibility.">
+  <div class="label">Set Expectations First</div>
+  <h2>Scaffolding, <span class="accent">not a local law database</span></h2>
+  <div class="card-grid grid2" style="margin-top:2vh;">
+    <div class="feat-card" style="border-top:3px solid var(--c2);">
+      <span class="icon">🇺🇸</span><h3>What ships inside</h3>
+      <p>US/EU defaults: FMLA &amp; US state worker tests, GDPR DPIAs, ABA Op. 512, Westlaw / CourtListener connectors.</p>
+    </div>
+    <div class="feat-card" style="border-top:3px solid var(--c3);">
+      <span class="icon">🔧</span><h3>Where HK/China value is</h3>
+      <p>The <b>workflow scaffolding</b> + the <b>customisation layer</b>. You supply local law via the practice profile and the sources you feed it.</p>
+    </div>
+  </div>
+  <div class="callout">
+    <div class="big">Be upfront: the plugins are jurisdiction-agnostic <i>structure</i>. The HK/PRC <i>content</i> comes from you. That honesty is what earns a scholarly room's trust.</div>
+  </div>
+</div>
+
+<!-- SLIDE 24: Transfers vs remap -->
+<div class="slide" data-s="5" data-title="What Transfers vs What Needs Remapping" data-notes="The practical sorting. Common-law structure transfers cleanly to Hong Kong: litigation workflow, contract review, IP, diligence, document drafting. What needs real remapping: anything keyed to a US statute or test (FMLA → Employment Ordinance, GDPR → PDPO), and anything assuming case-law precedent when you're in PRC civil law (no binding precedent). Use the two-column contrast.">
+  <div class="label">Sort It Out</div>
+  <h2>Transfers cleanly <span class="accent">vs</span> needs remapping</h2>
+  <div class="card-grid grid2" style="margin-top:2vh;">
+    <div class="feat-card" style="border-top:3px solid var(--c3);">
+      <span class="icon">✅</span><h3>Transfers well (HK common law)</h3>
+      <ul class="blist" style="margin-top:1vh;">
+        <li>Litigation workflow &amp; work product</li>
+        <li>Contract / NDA review structure</li>
+        <li>IP triage, diligence grids, drafting</li>
+      </ul>
+    </div>
+    <div class="feat-card" style="border-top:3px solid var(--c5);">
+      <span class="icon">⚠️</span><h3>Needs real remapping</h3>
+      <ul class="blist" style="margin-top:1vh;">
+        <li>US-statute logic: FMLA → <b>Employment Ordinance</b>; GDPR → <b>PDPO</b></li>
+        <li>US worker tests → HK contract-of-service tests</li>
+        <li>Precedent-driven skills under <b>PRC civil law</b> (no binding precedent)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 25: Hong Kong config -->
+<div class="slide" data-s="5" data-title="Hong Kong Configuration" data-notes="The concrete HK mapping. Privacy: GDPR logic → PDPO (the six Data Protection Principles, PCPD guidance, s.33 cross-border). Employment: Employment Ordinance Cap 57, MPF, the anti-discrimination ordinances. Corporate: Companies Ordinance Cap 622, SFC/HKEX listing rules. And wire research to HK sources — HKLII, Westlaw Asia / LexisNexis HK, e-Legislation. HK being common law means the litigation/contract machinery mostly just works once the profile says 'Hong Kong'.">
+  <div class="label">🇭🇰 Hong Kong (Common Law)</div>
+  <h2>Hong Kong <span class="accent">configuration</span></h2>
+  <table class="dt">
+    <thead><tr><th>Area</th><th>Swap the US/EU default for…</th><th>Sources to wire in</th></tr></thead>
+    <tbody>
+      <tr><td>Privacy</td><td>GDPR → <b>PDPO</b> — 6 Data Protection Principles, PCPD guidance, s.33 cross-border</td><td>PCPD guidance</td></tr>
+      <tr><td>Employment</td><td>FMLA/state → <b>Employment Ordinance (Cap 57)</b>, MPF, anti-discrimination ordinances</td><td>e-Legislation</td></tr>
+      <tr><td>Corporate</td><td>US corp → <b>Companies Ordinance (Cap 622)</b>, SFC &amp; HKEX listing rules</td><td>HKEX / SFC</td></tr>
+      <tr><td>Research</td><td>Westlaw/CourtListener → <b>HKLII</b>, Westlaw Asia, LexisNexis HK</td><td>HKLII (free)</td></tr>
+    </tbody>
+  </table>
+  <p class="fn">Because HK is common law, litigation &amp; contract machinery largely works once the profile says "Hong Kong" + you supply the statutes.</p>
+</div>
+
+<!-- SLIDE 26: China config -->
+<div class="slide" data-s="5" data-title="Mainland China Configuration" data-notes="The PRC mapping is a bigger lift because it's a civil-law system. Data & AI is the hot area: PIPL / DSL / CSL, CAC cross-border data-export rules, and the Interim Measures for Generative AI Services plus algorithm-recommendation rules — genuinely cutting-edge and very teachable. Employment → Labour Contract Law; Corporate → PRC Company Law. The big caveat: skills that assume binding case-law precedent (claim charts, precedent search) need rethinking — China has guiding cases, not binding precedent. Sources: Pkulaw / 北大法宝, Westlaw China.">
+  <div class="label">🇨🇳 Mainland China (Civil Law)</div>
+  <h2>Mainland China <span class="accent">configuration</span></h2>
+  <table class="dt">
+    <thead><tr><th>Area</th><th>Map to PRC regime…</th></tr></thead>
+    <tbody>
+      <tr><td>Data &amp; AI 🔥</td><td><b>PIPL / DSL / CSL</b>, CAC cross-border export rules, <b>Interim Measures for Generative AI Services</b>, algorithm-recommendation rules</td></tr>
+      <tr><td>Employment</td><td><b>Labour Contract Law</b> (统一全国, not state-by-state)</td></tr>
+      <tr><td>Corporate</td><td><b>PRC Company Law</b></td></tr>
+      <tr><td>⚠️ Civil-law caveat</td><td>Precedent-driven skills (claim charts, precedent search) need rethinking — <b>guiding cases, not binding precedent</b></td></tr>
+      <tr><td>Research</td><td>Pkulaw / 北大法宝, Westlaw China</td></tr>
+    </tbody>
+  </table>
+  <p class="fn">The GenAI &amp; algorithm rules are world-leading and genuinely teachable — a strong research seam for CityU.</p>
+</div>
+
+<!-- SLIDE 27: Data residency -->
+<div class="slide" data-s="5" data-title="The Data-Residency & Confidentiality Problem" data-notes="This slide is mandatory, not optional. The moment a lawyer pastes client data or personal data into a cloud LLM, PRC data-export restrictions and HK PDPO obligations are engaged. Teach the limits explicitly and teach the safe patterns: redact identifiers, work on de-identified segments, draft in the abstract, and understand where the model runs. This is itself a rich legal-ethics teaching topic — and it's the question this audience will ask you.">
+  <div class="label">Must-Teach</div>
+  <h2>Data residency &amp; <span class="accent">confidentiality</span></h2>
+  <p class="subtitle" style="max-width:64ch;">The moment client or personal data enters a cloud LLM, PRC data-export rules and HK PDPO obligations are engaged. Teach the limits.</p>
+  <div class="card-grid grid2" style="margin-top:2vh;">
+    <div class="feat-card" style="border-top:3px solid var(--c2);">
+      <span class="icon">🚫</span><h3>The risk</h3>
+      <ul class="blist" style="margin-top:1vh;">
+        <li>PRC cross-border data-export restrictions</li>
+        <li>HK PDPO duties on personal data</li>
+        <li>Privilege &amp; client confidentiality</li>
+      </ul>
+    </div>
+    <div class="feat-card" style="border-top:3px solid var(--c3);">
+      <span class="icon">✅</span><h3>Safe patterns to teach</h3>
+      <ul class="blist" style="margin-top:1vh;">
+        <li>Redact identifiers before prompting</li>
+        <li>Work on de-identified / abstract facts</li>
+        <li>Know where the model runs &amp; what's retained</li>
+      </ul>
+    </div>
+  </div>
+  <p class="fn">This is a legal-ethics teaching topic in its own right — and the first question your audience will ask.</p>
+</div>
+
+<!-- SLIDE 28: Professional conduct -->
+<div class="slide" data-s="5" data-title="Professional Conduct Remap" data-notes="Close Section 5 by mapping the ethics layer. The suite is built on ABA Op. 512 (US). For HK practitioners the analogues are the Hong Kong Solicitors' Guide to Professional Conduct and the Bar's Code of Conduct. The three duties that govern AI use are the same everywhere: competence (understand the tool's limits), confidentiality (the data-residency slide), and supervision (a qualified lawyer owns the output). This is a natural CPD / teaching module.">
+  <div class="label">Ethics Layer</div>
+  <h2>Professional conduct <span class="accent">remap</span></h2>
+  <p class="subtitle" style="max-width:62ch;">The suite encodes US ethics (ABA Op. 512). For HK, map to the Solicitors' Guide &amp; the Bar Code of Conduct — the three governing duties are universal:</p>
+  <ul class="chklist" style="margin-top:2.5vh;">
+    <li><b>Competence</b> — understand what the tool can and can't do, and its jurisdiction limits.</li>
+    <li><b>Confidentiality</b> — the data-residency discipline from the previous slide.</li>
+    <li><b>Supervision</b> — a qualified lawyer reviews and owns every output. The gate is non-negotiable.</li>
+  </ul>
+  <p class="fn">A natural CPD module — and a recurring theme through every plugin's design.</p>
+</div>
+
+<!-- SLIDE 29: Section 6 Divider -->
+<div class="slide div-slide kb6" data-s="6" data-title="Section 6 — Get Started" data-notes="Section 6 turns the deck into action: the hands-on labs, a suggested running order for the session, and the takeaways. This is what the trainer uses to actually run the day.">
+  <span class="dbar"></span>
+  <div class="div-tag">Section 6<br><span style="color:#fff;">Get Started</span></div>
+  <p class="div-sub">Labs, a running order, and the takeaways</p>
+</div>
+
+<!-- SLIDE 30: Labs -->
+<div class="slide" data-s="6" data-title="Hands-On Labs" data-notes="Four labs that build from simple to capstone. A: NDA triage on a sanitized HK NDA — fast win. B: the comparative PIA — same feature run under PDPO vs GDPR, the standout teaching moment. C: build and install a custom skill via Builder Hub. Capstone: a full CityU clinic workflow remapped to HK — intake to client letter to supervisor review. Match lab choice to who's in the room.">
+  <div class="label">Do It Live</div>
+  <h2>Hands-on <span class="accent">labs</span></h2>
+  <div class="card-grid grid4" style="margin-top:2.5vh;">
+    <div class="card" style="border-top:3px solid var(--c1);"><h4>Lab A · Warm-up</h4><p>NDA triage on a sanitized HK NDA. A fast, visible win.</p></div>
+    <div class="card" style="border-top:3px solid var(--c5);"><h4>Lab B · Compare ⭐</h4><p>Same feature, a PIA under <b>PDPO vs GDPR</b> — the standout teaching moment.</p></div>
+    <div class="card" style="border-top:3px solid var(--c3);"><h4>Lab C · Build</h4><p>Build &amp; install a custom skill (e.g. HK Stamp Duty checker) via Builder Hub.</p></div>
+    <div class="card" style="border-top:3px solid var(--c2);"><h4>Capstone</h4><p>A CityU clinic flow end-to-end, remapped to HK: intake → letter → supervisor review.</p></div>
+  </div>
+  <p class="fn">Pick labs to match the room — academics lean B &amp; Capstone; practitioners lean A &amp; C.</p>
+</div>
+
+<!-- SLIDE 31: Running order -->
+<div class="slide" data-s="6" data-title="Suggested Running Order" data-notes="A pragmatic agenda. Lead with the architecture (§2), then jump to what this audience cares most about — teaching tools (§4) and the HK/China localisation (§5). Demo the transactional plugins quickly (§3) rather than deep-diving, unless in-house counsel are present. Close with a lab. This ordering puts your three highest-impact segments front and centre.">
+  <div class="label">Run the Session</div>
+  <h2>Suggested <span class="accent">running order</span></h2>
+  <table class="dt">
+    <thead><tr><th>#</th><th>Segment</th><th>Why here</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Framing + the one rule (§1)</td><td>Earn trust before any demo</td></tr>
+      <tr><td>2</td><td>How it works — practice profile (§2)</td><td>The "aha" that unlocks everything</td></tr>
+      <tr><td>3</td><td>Teaching &amp; clinics (§4)</td><td>Highest relevance for CityU</td></tr>
+      <tr><td>4</td><td>Hong Kong &amp; China (§5)</td><td>Your differentiator</td></tr>
+      <tr><td>5</td><td>Plugin tour — quick demos (§3)</td><td>Breadth, not depth (unless in-house counsel)</td></tr>
+      <tr><td>6</td><td>Hands-on lab + Q&amp;A</td><td>Make it stick</td></tr>
+    </tbody>
+  </table>
+  <p class="fn">Lead with architecture → teaching → localisation. Treat the transactional plugins as fast demos.</p>
+</div>
+
+<!-- SLIDE 32: Takeaways -->
+<div class="slide" data-s="6" data-title="Key Takeaways" data-notes="The five sentences you want them to leave with. Land the last one hardest: this is structure, not local law — the lawyer always owns the output. End by inviting Q&A and pointing to the appendix table for the full skill inventory.">
+  <div class="label">Remember Five Things</div>
+  <h2>Key <span class="accent">takeaways</span></h2>
+  <ul class="chklist" style="margin-top:2.5vh;">
+    <li>It's <b>13 workflow assistants</b>, not one robot lawyer — install what you need.</li>
+    <li>Every output is a <b>draft for attorney review</b> — cited, conservative, gated.</li>
+    <li>It learns your practice <b>once</b> (the profile) and every skill reuses it.</li>
+    <li>Common-law workflows transfer to <b>HK</b>; PRC civil law needs deeper remapping.</li>
+    <li>It supplies the <b>structure</b> — you supply HK/PRC <b>law</b> and own the result.</li>
+  </ul>
+</div>
+
+<!-- SLIDE 33: Appendix table -->
+<div class="slide" data-s="6" data-tags="deep-dive" data-title="Appendix — Full Plugin Index" data-notes="Reference slide (Level C). The complete plugin inventory with the headline skills, for trainers who want the full map. Don't present it linearly — it's a leave-behind / lookup.">
+  <div class="label">Appendix · Reference</div>
+  <h2>Full plugin <span class="accent">index</span></h2>
+  <table class="dt">
+    <thead><tr><th>Plugin</th><th>Headline skills</th></tr></thead>
+    <tbody>
+      <tr><td><b>commercial-legal</b></td><td>vendor/MSA &amp; NDA review · renewal-tracker · escalation-flagger · stakeholder-summary</td></tr>
+      <tr><td><b>corporate-legal</b></td><td>tabular-review · diligence-issue-extraction · written-consent · closing-checklist · entity-compliance</td></tr>
+      <tr><td><b>privacy-legal</b></td><td>pia-generation · dpa-review · dsar-response · use-case-triage · reg-gap-analysis</td></tr>
+      <tr><td><b>ai-governance-legal</b></td><td>ai-inventory · aia-generation · vendor-ai-review · policy-monitor</td></tr>
+      <tr><td><b>litigation-legal</b></td><td>claim-chart · chronology · deposition-prep · privilege-log-review · brief-section-drafter · demand-draft</td></tr>
+      <tr><td><b>ip-legal</b></td><td>clearance · fto-triage · cease-desist · takedown · oss-review · ip-clause-review</td></tr>
+      <tr><td><b>employment-legal</b></td><td>hiring/termination-review · worker-classification · internal-investigation · policy-drafting</td></tr>
+      <tr><td><b>product-legal</b></td><td>is-this-a-problem · feature-risk-assessment · marketing-claims-review · launch-review</td></tr>
+      <tr><td><b>regulatory-legal</b></td><td>reg-feed-watcher · policy-diff · gaps · comments · policy-redraft</td></tr>
+      <tr><td><b>law-student</b></td><td>socratic-drill · case-brief · irac-practice · outline-builder · bar-prep-questions</td></tr>
+      <tr><td><b>legal-clinic</b></td><td>client-intake · deadlines · supervisor-review-queue · plain-language-letters · semester-handoff</td></tr>
+      <tr><td><b>legal-builder-hub</b></td><td>registry-browser · skill-installer · skills-qa · auto-updater</td></tr>
+      <tr><td><b>cocounsel-legal</b></td><td>deep-research (Westlaw + Practical Law, linked citations)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SLIDE 34: Closing -->
+<div class="slide" data-s="6" data-title="Thank You" data-notes="Close warmly and restate the disclaimer one final time — it's the responsible note to end a legal-AI session on. Invite them to start with one plugin that matches their work, run the cold-start as 'Hong Kong', and build from there.">
+  <div class="hero">
+    <span class="g-chip" style="margin-bottom:1.5rem;">⚖️ Claude for Legal · CityU School of Law</span>
+    <h2>Make review <span class="accent">faster</span>.<br>Never replace the <span class="accent">lawyer</span>.</h2>
+    <p class="subtitle" style="max-width:54ch;margin-top:1.5rem;">Start with one plugin that matches your work · run the cold-start as "Hong Kong" · build from there.</p>
+    <p class="fn" style="border:none;margin-top:3vh;max-width:60ch;text-align:center;">Reminder: every output is a draft for attorney review — not legal advice. A qualified lawyer verifies and takes professional responsibility for anything that leaves the building.</p>
+  </div>
+</div>
+
+<!-- SLIDE 35: Making of / Colophon -->
+<div class="slide" data-s="6" data-title="How This Deck Was Made" data-notes="The 'wow' slide for a training audience: this entire 36-slide deck was built by Claude Code in one short session — roughly 10-15 minutes of hands-on generation — by reading the actual plugin files rather than guessing, and live-verifying external facts via web search. Use it to show the productivity story: this is what 'an agent that does the work' actually looks like. Numbers are real: 13 legal plugins read, ~14 connectors mapped, facts web-verified.">
+  <div class="label">Colophon · Made With Claude Code</div>
+  <h2>How this deck <span class="accent">was made</span></h2>
+  <p class="subtitle" style="max-width:62ch;">This whole deck is itself a demo — built by an AI agent, from primary sources, in one sitting.</p>
+  <div class="card-grid grid4" style="margin-top:2.5vh;">
+    <div class="card" style="border-top:3px solid var(--c6);"><span class="icon">⏱️</span><h4>~15 min</h4><p>Built &amp; refined in a single Claude Code session on 15 Jun 2026.</p></div>
+    <div class="card" style="border-top:3px solid var(--c1);"><span class="icon">🖥️</span><h4>Claude Code</h4><p>Claude Opus 4.8 (1M-token context) doing the assembly hands-on.</p></div>
+    <div class="card" style="border-top:3px solid var(--c3);"><span class="icon">📂</span><h4>13 plugins read</h4><p>Grounded in the real <code>claude-for-legal</code> skill &amp; connector files — not guessed.</p></div>
+    <div class="card" style="border-top:3px solid var(--c5);"><span class="icon">🔎</span><h4>Web-verified</h4><p>External facts (e.g. Gemini Enterprise connectors) checked live, with sources.</p></div>
+  </div>
+  <div class="callout" style="margin-top:2.2vh;background:linear-gradient(135deg,rgba(227,116,0,.1),rgba(66,133,244,.06));border-color:rgba(227,116,0,.28);">
+    <div class="big" style="font-size:clamp(15px,1.6vw,23px);">36 slides · 6 sections · ~14 connectors mapped — read from source, verified, and laid out by the agent. <b>This is what "an agent that does the work" looks like.</b></div>
+  </div>
+  <p class="fn">Skills/tooling used: <code>claude-for-legal</code> suite · file reading for grounding · <code>WebSearch</code>/<code>WebFetch</code> for verification · matched an existing HTML deck template.</p>
+</div>
+
+<!-- ===== SECTION CHIP ===== -->
+<div id="sec-chip" onclick="toggleTOC()" title="Open table of contents [T]">§ ·</div>
+
+<!-- ===== SEEKBAR ===== -->
+<div id="seekbar-wrap">
+  <input id="seekbar" type="range" min="1" max="39" value="1" oninput="seekTo(this.value)">
+</div>
+
+<!-- ===== NAV ===== -->
+<div id="nav">
+  <div id="lvl-sel" title="Audience level">
+    <button data-lvl="A" title="Beginner — core + context">A</button>
+    <button data-lvl="B" title="Standard — core + context">B</button>
+    <button data-lvl="C" title="Advanced — core + deep-dives/appendix">C</button>
+  </div>
+  <button class="nb" id="btnPrev" onclick="prevSlide()" title="← Previous">‹</button>
+  <div class="ctr-wrap" style="display:flex;align-items:center;gap:4px;font-size:12px;color:#5f6368;font-family:Roboto,sans-serif;">
+    <input id="ctr-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="1" title="Type a slide number and press Enter">
+    <span id="ctr-total" style="color:#9aa0a6;">/ 39</span>
+  </div>
+  <button class="nb" id="btnNext" onclick="nextSlide()" title="→ Next">›</button>
+</div>
+
+</div><!-- /deck -->
+
+<script>
+// ============================================================
+// LEVEL FILTERING — config + state
+// ============================================================
+const LEVELS = {
+  A: { name: 'Beginner',     show: ['core', 'intro'] },
+  B: { name: 'Standard',     show: ['core', 'intro'] },
+  C: { name: 'Advanced',     show: ['core', 'deep-dive'] }
+};
+
+const SECTION_NAMES = {
+  '0': 'Title',
+  '1': 'Why This Matters',
+  '2': 'How It Works',
+  '3': 'The Practice Plugins',
+  '4': 'Teaching & Clinics',
+  '5': 'Hong Kong & China',
+  '6': 'Get Started'
+};
+
+let currentLevel = 'B';
+let isInitialLoad = true;
+
+const allSlides = Array.from(document.querySelectorAll('.slide'));
+let visibleSlides = allSlides.slice();
+const slides = visibleSlides;
+let cur = 0;
+const sectionColors = {'1':'#4285f4','2':'#ea4335','3':'#34a853','4':'#1a73e8','5':'#f9ab00','6':'#e37400','0':'#4285f4'};
+
+function slideMatches(slide, allowedTags) {
+  const raw = slide.dataset.tags || 'core';
+  const tags = raw.split(/[,\s]+/).filter(Boolean);
+  return tags.some(t => allowedTags.includes(t));
+}
+
+function setLevel(levelKey) {
+  const level = LEVELS[levelKey];
+  if (!level) return;
+
+  const currentAllIdx = visibleSlides.length ? allSlides.indexOf(visibleSlides[cur]) : 0;
+
+  visibleSlides = allSlides.filter(s => slideMatches(s, level.show));
+  allSlides.forEach(s => { s.style.display = visibleSlides.includes(s) ? '' : 'none'; });
+
+  let newCur = visibleSlides.indexOf(allSlides[currentAllIdx]);
+  if (newCur === -1) {
+    newCur = visibleSlides.length - 1;
+    for (let i = currentAllIdx; i < allSlides.length; i++) {
+      const v = visibleSlides.indexOf(allSlides[i]);
+      if (v !== -1) { newCur = v; break; }
+    }
+  }
+
+  if (isInitialLoad) {
+    const saved = parseInt(localStorage.getItem('legal-deck-pos-' + levelKey), 10);
+    if (!isNaN(saved) && saved >= 0 && saved < visibleSlides.length) newCur = saved;
+  }
+
+  document.querySelectorAll('.slide.active, .slide.exit').forEach(s => s.classList.remove('active', 'exit'));
+  cur = Math.max(0, Math.min(newCur, visibleSlides.length - 1));
+  if (visibleSlides[cur]) visibleSlides[cur].classList.add('active');
+
+  const sb = document.getElementById('seekbar');
+  const inp = document.getElementById('ctr-input');
+  if (sb) sb.max = visibleSlides.length;
+  if (inp) inp.max = visibleSlides.length;
+  const totalEl = document.getElementById('ctr-total');
+  if (totalEl) totalEl.textContent = '/ ' + visibleSlides.length;
+
+  document.querySelectorAll('#lvl-sel button').forEach(b => {
+    b.classList.toggle('active', b.dataset.lvl === levelKey);
+  });
+
+  currentLevel = levelKey;
+  localStorage.setItem('legal-deck-level', levelKey);
+  isInitialLoad = false;
+  updateUI();
+}
+
+function updateTOCActive() {
+  document.querySelectorAll('#tocOv .toc-row:not(.muted)').forEach((row, i) => {
+    row.classList.toggle('active', i === cur);
+  });
+}
+
+function goto(idx) {
+  if (idx < 0 || idx >= visibleSlides.length) return;
+  visibleSlides[cur].classList.remove('active');
+  visibleSlides[cur].classList.add('exit');
+  cur = idx;
+  visibleSlides[cur].classList.add('active');
+  setTimeout(() => { document.querySelectorAll('.slide.exit').forEach(s => s.classList.remove('exit')); }, 360);
+  localStorage.setItem('legal-deck-pos-' + currentLevel, cur);
+  updateUI();
+  updateTOCActive();
+}
+
+function nextSlide() { goto(cur + 1); }
+function prevSlide() { goto(cur - 1); }
+
+function seekTo(val) {
+  const idx = parseInt(val) - 1;
+  if (idx === cur) return;
+  visibleSlides[cur].classList.remove('active');
+  document.querySelectorAll('.slide.exit').forEach(s => s.classList.remove('exit'));
+  cur = Math.max(0, Math.min(idx, visibleSlides.length - 1));
+  visibleSlides[cur].classList.add('active');
+  localStorage.setItem('legal-deck-pos-' + currentLevel, cur);
+  updateUI();
+}
+
+function jumpTo(val) {
+  const n = parseInt(val, 10);
+  if (!isNaN(n) && n >= 1 && n <= visibleSlides.length) goto(n - 1);
+  document.getElementById('ctr-input').value = cur + 1;
+}
+
+function updateUI() {
+  if (!visibleSlides.length) return;
+  const n = cur + 1;
+  const totalN = visibleSlides.length;
+  const pct = (n / totalN * 100).toFixed(2);
+  const section = visibleSlides[cur].getAttribute('data-s') || '1';
+  const color = sectionColors[section] || '#4285f4';
+
+  const sb = document.getElementById('seekbar');
+  sb.value = n;
+  sb.style.setProperty('--seek-fill', color);
+  sb.style.setProperty('--seek-pct', pct + '%');
+
+  const inp = document.getElementById('ctr-input');
+  if (document.activeElement !== inp) inp.value = n;
+
+  document.getElementById('notesSN').textContent = n;
+
+  const chip = document.getElementById('sec-chip');
+  if (chip) {
+    chip.textContent = `§${section} · ${SECTION_NAMES[section] || ''}`;
+    chip.style.borderLeftColor = sectionColors[section] || 'var(--c1)';
+  }
+}
+
+function toggleNotes() {
+  const ov = document.getElementById('notesOv');
+  document.getElementById('notesTxt').textContent = visibleSlides[cur].getAttribute('data-notes') || 'No notes for this slide.';
+  document.getElementById('notesSN').textContent = cur + 1;
+  ov.classList.toggle('vis');
+}
+
+function slideTitle(slide) {
+  if (slide.dataset.title) return slide.dataset.title;
+  const h = slide.querySelector('h1, h2') || slide.querySelector('.div-tag, .label');
+  return h ? h.textContent.trim().replace(/\s+/g, ' ').slice(0, 42) : '(untitled)';
+}
+
+function levelsForSlide(slide) {
+  const raw = slide.dataset.tags || 'core';
+  const tags = raw.split(/[,\s]+/).filter(Boolean);
+  const levels = [];
+  ['A','B','C'].forEach(L => { if (tags.some(t => LEVELS[L].show.includes(t))) levels.push(L); });
+  return levels;
+}
+
+function buildTOC() {
+  const list = document.getElementById('tocList');
+  list.innerHTML = '';
+  document.getElementById('tocLevel').textContent = currentLevel;
+  let lastSec = null;
+  allSlides.forEach((s) => {
+    const sec = s.dataset.s || '0';
+    if (sec !== lastSec) {
+      const h = document.createElement('div');
+      h.className = 'toc-section';
+      h.textContent = SECTION_NAMES[sec] || `Section ${sec}`;
+      list.appendChild(h);
+      lastSec = sec;
+    }
+    const visIdx = visibleSlides.indexOf(s);
+    const isVisible = visIdx >= 0;
+    const num = isVisible ? (visIdx + 1) : '·';
+    const row = document.createElement('button');
+    row.className = 'toc-row' + (isVisible ? '' : ' muted') + (isVisible && visIdx === cur ? ' active' : '');
+    const title = document.createElement('span');
+    title.className = 'toc-row-title';
+    title.textContent = `${num}. ${slideTitle(s)}`;
+    const badge = document.createElement('span');
+    badge.className = 'toc-badge';
+    levelsForSlide(s).forEach(L => {
+      const ls = document.createElement('span');
+      ls.className = 'l' + L;
+      ls.textContent = L;
+      badge.appendChild(ls);
+    });
+    row.appendChild(title);
+    row.appendChild(badge);
+    if (isVisible) row.addEventListener('click', () => { goto(visIdx); row.blur(); });
+    list.appendChild(row);
+  });
+  updateTOCActive();
+}
+
+function toggleTOC() {
+  const ov = document.getElementById('tocOv');
+  if (!ov.classList.contains('vis')) buildTOC();
+  ov.classList.toggle('vis');
+}
+
+document.addEventListener('keydown', e => {
+  if (document.getElementById('notesOv').classList.contains('vis')) {
+    if (e.key === 'Escape' || e.key === 's' || e.key === 'S') toggleNotes();
+    return;
+  }
+  if (document.getElementById('tocOv').classList.contains('vis')) {
+    if (e.key === 'Escape' || e.key === 't' || e.key === 'T') { toggleTOC(); return; }
+    if (e.key === 'ArrowUp') { e.preventDefault(); document.getElementById('tocOv').scrollBy({top: -60, behavior: 'smooth'}); return; }
+    if (e.key === 'ArrowDown') { e.preventDefault(); document.getElementById('tocOv').scrollBy({top: 60, behavior: 'smooth'}); return; }
+  }
+  if (document.activeElement === document.getElementById('ctr-input')) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); prevSlide(); }
+  if (e.key === 's' || e.key === 'S') toggleNotes();
+  if (e.key === 't' || e.key === 'T') toggleTOC();
+  if (e.key === 'Home') goto(0);
+  if (e.key === 'End')  goto(visibleSlides.length - 1);
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 50) dx < 0 ? nextSlide() : prevSlide();
+}, {passive:true});
+
+document.querySelectorAll('#lvl-sel button').forEach(b => {
+  b.addEventListener('click', () => setLevel(b.dataset.lvl));
+});
+
+(function wireCounterInput() {
+  const inp = document.getElementById('ctr-input');
+  if (!inp) return;
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); jumpTo(inp.value); inp.blur(); }
+    else if (e.key === 'Escape') { inp.value = cur + 1; inp.blur(); }
+  });
+  inp.addEventListener('blur', () => jumpTo(inp.value));
+})();
+
+(function pickInitialLevel() {
+  const urlLevel = (new URLSearchParams(location.search).get('level') || '').toUpperCase();
+  const savedLevel = localStorage.getItem('legal-deck-level');
+  const initLevel = LEVELS[urlLevel] ? urlLevel : (savedLevel && LEVELS[savedLevel]) ? savedLevel : 'B';
+  setLevel(initLevel);
+})();
+</script>
+</body>
+</html>
