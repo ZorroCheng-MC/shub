@@ -16,30 +16,30 @@ configuration:
     fontOrigin: googleFonts
     cdnCaching: true
     typography:
-      header: Schibsted Grotesk
-      body: Source Sans Pro
-      code: IBM Plex Mono
+      header: Poppins
+      body: Roboto
+      code: Roboto Mono
     colors:
       lightMode:
-        light: "#faf8f8"
-        lightgray: "#e5e5e5"
-        gray: "#b8b8b8"
-        darkgray: "#4e4e4e"
-        dark: "#2b2b2b"
-        secondary: "#284b63"
-        tertiary: "#84a59d"
-        highlight: rgba(143, 159, 169, 0.15)
-        textHighlight: "#fff23688"
+        light: "#ffffff"
+        lightgray: "#e8eaed"
+        gray: "#9aa0a6"
+        darkgray: "#3c4043"
+        dark: "#202124"
+        secondary: "#1a73e8"
+        tertiary: "#7c3aed"
+        highlight: rgba(66, 133, 244, 0.10)
+        textHighlight: "#fbbc0466"
       darkMode:
-        light: "#161618"
-        lightgray: "#393639"
-        gray: "#646464"
-        darkgray: "#d4d4d4"
-        dark: "#ebebec"
-        secondary: "#7b97aa"
-        tertiary: "#84a59d"
-        highlight: rgba(143, 159, 169, 0.15)
-        textHighlight: "#b3aa0288"
+        light: "#131314"
+        lightgray: "#3c4043"
+        gray: "#9aa0a6"
+        darkgray: "#c4c7c5"
+        dark: "#e3e3e3"
+        secondary: "#8ab4f8"
+        tertiary: "#c58af9"
+        highlight: rgba(138, 180, 248, 0.14)
+        textHighlight: "#5c4a1eaa"
 plugins:
   - source: "@quartz-community/created-modified-date"
     enabled: true
