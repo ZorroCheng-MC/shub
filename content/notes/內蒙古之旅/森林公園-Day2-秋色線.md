@@ -1,5 +1,5 @@
 ---
-date: 2026-09-16
+date: 2026-09-17
 place: 阿爾山國家森林公園
 itinerary: true
 location: "47.6000,120.9000"
