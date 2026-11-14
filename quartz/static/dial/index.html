@@ -285,7 +285,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   var CODE_RE = /[a-z]{3}-[a-z]{4}-[a-z]{3}/i;
   var NUM_RE = /^\+\d{6,15}$/;
   var PIN_RE = /^\d{6,16}$/;
-  var SHARE_BASE = 'https://shub.zorro.hk/static/dial/?v=9';
+  var SHARE_BASE = 'https://shub.zorro.hk/static/dial/?v=10';
 
   /* Google Meet dial-in numbers (from tel.meet, Nov 2026). The PIN is the same for every country.
      The host's own number in the link always wins; this list only adds choices for the guest. */
@@ -626,15 +626,22 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       $(id).addEventListener('input', build);
       $(id).addEventListener('change', build);
     });
+    /* Each paste replaces the previous meeting: the Meet link, PIN and name come from the new text,
+       and anything it lacks is cleared so an old PIN never ends up in a new link. The number keeps
+       its default when the text has none, and a name the host typed stays. */
+    var titleTyped = false;
+    $('title').addEventListener('input', function () { titleTyped = $('title').value.trim() !== ''; });
     $('paste').addEventListener('input', function () {
-      var r = parseJoinInfo($('paste').value);
+      var text = $('paste').value;
+      if (!text.trim()) return;
+      var r = parseJoinInfo(text);
       if (r.num) { $('num').value = prettyNum(r.num); syncCountryFromNum(); }
-      if (r.pin) $('pin').value = groupPin(r.pin) + (r.hash ? '#' : '');
-      if (r.hash) $('hash').checked = true;
-      if (r.code) $('meet').value = 'https://meet.google.com/' + r.code;
-      if (r.title && !$('title').value) $('title').value = r.title;
+      $('pin').value = r.pin ? groupPin(r.pin) + (r.hash ? '#' : '') : '';
+      if (r.pin) $('hash').checked = !!r.hash;
+      $('meet').value = r.code ? 'https://meet.google.com/' + r.code : '';
+      if (!titleTyped) $('title').value = r.title || '';
       build();
-      if (readFields().ok) $('det').open = false;
+      $('det').open = !readFields().ok;
     });
 
     function wireCopy(btnId, getText) {
