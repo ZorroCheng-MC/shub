@@ -18,6 +18,10 @@
   .card { background:var(--card); border-radius:16px; padding:20px; margin-bottom:14px; box-shadow:0 2px 12px rgba(20,30,60,.08); }
   label { display:block; font-weight:600; font-size:.88rem; margin:14px 0 6px; }
   .card > label:first-child, .card > .field:first-child label { margin-top:0; }
+  details.how { margin:16px 0 0; background:var(--code); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  details.how summary { cursor:pointer; font-weight:600; font-size:.9rem; color:var(--accent); }
+  details.how ol { margin:10px 0; padding-left:20px; font-size:.88rem; line-height:1.6; color:var(--muted); }
+  details.how img { display:block; width:100%; height:auto; border-radius:8px; border:1px solid var(--line); }
   select { width:100%; padding:12px; font-size:1rem; border:1px solid var(--line); border-radius:10px; background:var(--card); color:var(--text); font-family:inherit; }
   input[type=text], textarea { width:100%; padding:12px; font-size:1rem; border:1px solid var(--line); border-radius:10px; background:var(--card); color:var(--text); font-family:inherit; }
   textarea { min-height:78px; resize:vertical; }
@@ -72,7 +76,17 @@
       <div class="err" id="err-meet"></div>
     </div>
 
-    <label for="paste">2. Paste the "Join by phone" info <span class="note">(optional shortcut)</span></label>
+    <details class="how">
+      <summary>How to get the number and PIN from Google Calendar</summary>
+      <ol>
+        <li>Open the meeting in Google Calendar.</li>
+        <li>Click the <b>Copy conference info</b> icon (circled) next to "Join with Google Meet".</li>
+        <li>Paste it in box 2 below. The Meet link, number and PIN fill in by themselves.</li>
+      </ol>
+      <img src="copy-conference-info.jpg" width="640" height="741" alt="Google Calendar event with the Copy conference info icon circled" loading="lazy">
+    </details>
+
+    <label for="paste">2. Paste the conference info <span class="note">(from Calendar or Meet)</span></label>
     <textarea id="paste" placeholder="On your phone, dial: +852 3002 2301&#10;Enter this PIN when prompted: 154 814 651#"></textarea>
     <div class="hint">The dial-in number and PIN are not in the Meet link. Copy them from Meet's "Join by phone" box. Pasting here fills the two fields below.</div>
 
