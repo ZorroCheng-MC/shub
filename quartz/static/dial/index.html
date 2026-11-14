@@ -18,9 +18,10 @@
   .card { background:var(--card); border-radius:16px; padding:20px; margin-bottom:14px; box-shadow:0 2px 12px rgba(20,30,60,.08); }
   label { display:block; font-weight:600; font-size:.88rem; margin:14px 0 6px; }
   .card > label:first-child, .card > .field:first-child label { margin-top:0; }
+  select { width:100%; padding:12px; font-size:1rem; border:1px solid var(--line); border-radius:10px; background:var(--card); color:var(--text); font-family:inherit; }
   input[type=text], textarea { width:100%; padding:12px; font-size:1rem; border:1px solid var(--line); border-radius:10px; background:var(--card); color:var(--text); font-family:inherit; }
   textarea { min-height:78px; resize:vertical; }
-  input:focus, textarea:focus { outline:2px solid var(--accent); border-color:transparent; }
+  input:focus, textarea:focus, select:focus { outline:2px solid var(--accent); border-color:transparent; }
   .hint { color:var(--muted); font-size:.8rem; margin-top:4px; }
   .err { color:var(--err); font-size:.84rem; margin-top:6px; min-height:1.1em; }
   .check { display:flex; align-items:center; gap:8px; margin-top:14px; font-size:.9rem; font-weight:400; }
@@ -53,6 +54,7 @@
     <a class="dial" id="dial-btn" target="_top" href="#">Tap to dial in</a>
     <div class="fb">
       Button not working? Call <b id="g-num"></b>, then enter PIN <b id="g-pin"></b>
+      <br><a class="video" id="g-alt" href="#" hidden>Or use Google's dial-in page</a>
       <br><a class="video" id="g-video" href="#" hidden>Join by video instead</a>
     </div>
   </main>
@@ -81,6 +83,16 @@
     <label for="pin">PIN</label>
     <input type="text" id="pin" value="" placeholder="154 814 651#" autocomplete="off">
     <div class="err" id="err-pin"></div>
+
+    <label for="pause">Wait before entering the PIN</label>
+    <select id="pause">
+      <option value="2">4 seconds</option>
+      <option value="3">6 seconds</option>
+      <option value="4" selected>8 seconds</option>
+      <option value="5">10 seconds</option>
+      <option value="7">14 seconds</option>
+    </select>
+    <div class="hint">If the call connects but the PIN is not entered, choose a longer wait.</div>
 
     <label class="check"><input type="checkbox" id="hash" checked> Press # after the PIN</label>
   </div>
@@ -113,7 +125,7 @@
 
   var CODE_RE = /[a-z]{3}-[a-z]{4}-[a-z]{3}/i;
   var NUM_RE = /^\+\d{6,15}$/;
-  var PIN_RE = /^\d{6,12}$/;
+  var PIN_RE = /^\d{6,16}$/;
 
   /* ---------- pure helpers ---------- */
   function meetCode(s) { var m = (s || '').match(CODE_RE); return m ? m[0].toLowerCase() : ''; }
@@ -123,22 +135,28 @@
     return d.replace(/(?!^)\+/g, '');
   }
   function cleanPin(s) { return (s || '').replace(/\D/g, ''); }
-  function groupPin(p) { return p.replace(/(\d{3})(?=\d)/g, '$1 '); }
+  function groupPin(p) { return p.replace(/(\d{3})(?=\d{2,})/g, '$1 '); }
   function prettyNum(n) {
     var m = n.match(/^\+852(\d{4})(\d{4})$/);
     return m ? '+852 ' + m[1] + ' ' + m[2] : n;
   }
-  function telHref(num, pin, hash) { return 'tel:' + num + ',,' + pin + (hash ? '%23' : ''); }
+  function clampPause(d) { d = parseInt(d, 10); return (d >= 1 && d <= 10) ? d : 4; }
+  function telHref(num, pin, hash, pause) {
+    return 'tel:' + num + new Array(clampPause(pause) + 1).join(',') + pin + (hash ? '%23' : '');
+  }
+  function stripInvisible(t) { return (t || '').replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, ''); }
 
-  function parseJoinInfo(text) {
+  function parseJoinInfo(raw) {
+    var text = stripInvisible(raw);
     var out = {};
-    var n = (text || '').match(/\+\d[\d\s\-()]{6,18}\d/);
+    var n = text.match(/\+\d[\d\s\-()]{6,18}\d/);
     if (n) out.num = cleanNum(n[0]);
-    var p = (text || '').match(/PIN[^\d]{0,40}([\d\s]{6,16})/i);
-    if (p) out.pin = cleanPin(p[1]);
+    var tp = text.match(/tel\.meet\/[a-z\-]+\?pin=(\d{6,16})/i);
+    var p = text.match(/PIN[^\d]{0,40}([\d\s]{6,20}\d)/i);
+    if (tp) out.pin = tp[1]; else if (p) out.pin = cleanPin(p[1]);
     var c = meetCode(text);
     if (c) out.code = c;
-    if (/PIN[^#]{0,60}#/i.test(text || '')) out.hash = true;
+    if (/PIN[^#]{0,60}#/i.test(text)) out.hash = true;
     return out;
   }
 
@@ -154,10 +172,10 @@
     return (o.n || o.p || o.c) ? o : null;
   }
 
-  function buildShare(code, num, pin, hash) {
+  function buildShare(code, num, pin, hash, pause) {
     var base = location.origin + location.pathname;
     return base + '#c=' + encodeURIComponent(code) + '&n=' + encodeURIComponent(num) +
-      '&p=' + encodeURIComponent(pin) + '&h=' + (hash ? '1' : '0');
+      '&p=' + encodeURIComponent(pin) + '&h=' + (hash ? '1' : '0') + '&d=' + clampPause(pause);
   }
 
   /* ---------- participant view ---------- */
@@ -171,11 +189,12 @@
       return;
     }
     document.title = 'Join the meeting by phone';
-    $('dial-btn').setAttribute('href', telHref(num, pin, hash));
+    $('dial-btn').setAttribute('href', telHref(num, pin, hash, o.d));
     $('g-num').textContent = prettyNum(num);
     $('g-pin').textContent = groupPin(pin) + (hash ? '#' : '');
     if (code) {
       var v = $('g-video'); v.setAttribute('href', 'https://meet.google.com/' + code); v.hidden = false;
+      var a = $('g-alt'); a.setAttribute('href', 'https://tel.meet/' + code + '?pin=' + pin); a.hidden = false;
     }
   }
 
@@ -187,7 +206,7 @@
     if (hostWired) { build(); return; }
     hostWired = true;
 
-    ['meet', 'num', 'pin', 'hash'].forEach(function (id) {
+    ['meet', 'num', 'pin', 'hash', 'pause'].forEach(function (id) {
       $(id).addEventListener('input', build);
       $(id).addEventListener('change', build);
     });
@@ -232,10 +251,11 @@
 
     $('err-meet').textContent = (rawMeet && !code) ? 'No meeting code like abc-defg-hij found in that link.' : '';
     $('err-num').textContent = ($('num').value.trim() && !NUM_RE.test(num)) ? 'Enter the number with country code, e.g. +852 3002 2301.' : '';
-    $('err-pin').textContent = ($('pin').value.trim() && !PIN_RE.test(pin)) ? 'PIN should be 6 to 12 digits.' : '';
+    $('err-pin').textContent = ($('pin').value.trim() && !PIN_RE.test(pin)) ? 'PIN should be 6 to 16 digits.' : '';
 
     var ok = !!code && NUM_RE.test(num) && PIN_RE.test(pin);
-    var link = ok ? buildShare(code, num, pin, hash) : '';
+    var pause = $('pause').value;
+    var link = ok ? buildShare(code, num, pin, hash, pause) : '';
 
     $('o-link').textContent = ok ? link : 'Fill in the fields above.';
     $('o-wa').textContent = ok
